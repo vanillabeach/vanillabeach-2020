@@ -1,5 +1,7 @@
+// npm
 @import '/node_modules/normalize.css/normalize.css';
-@import 'modules/variables';
-@import 'modules/base';
 
-@import '../scripts/vb-app/style';
+// base
+@import '_fonts';
+@import '_base';
+@import '_vars';

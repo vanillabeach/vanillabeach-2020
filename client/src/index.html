@@ -11,12 +11,20 @@
     />
   </head>
 
-  <body>
-    <p>
-      Welcome!
-    </p>
-    <vb-app message="hiya!">
-      Child node
+  <body>    
+    <vb-app id="app" message="hiya!">
+      <header id="header">
+        <h1>
+          VanillaBeach
+        </h1>
+        <vb-nav></vb-nav>
+      </header>
+      <section>
+        <vb-page>          
+          <vb-journal></vb-journal>
+          <vb-journal-navigation></vb-journal-navigation>
+        </vb-page>
+      </section>
     </vb-app>
     <script src="<%= htmlWebpackPlugin.files.chunks.main.entry %>"></script>
   </body>

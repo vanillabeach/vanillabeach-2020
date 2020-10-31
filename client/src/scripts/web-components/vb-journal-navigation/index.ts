@@ -1,6 +1,7 @@
 import { LitElement, css, html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { JournalSummary } from '../../model/journalSummary';
+import { State } from '../vb-app/index';
 import * as PubSub from 'pubsub-js';
 
 export class JournalNavigation extends LitElement {
@@ -26,24 +27,20 @@ export class JournalNavigation extends LitElement {
 
   private bindPubSubEvents() {    
     PubSub.subscribe(
-      'JournalNavigationResponse',
-      (_:string, journals: Promise<JournalSummary[]>) => {
-
-        journals.then((data:JournalSummary[]) => {
-          this.journalList = this.renderJournalList(data);
-          console.log('journalList', this.journalList);
-        })
-        .catch((error) => {
-          console.error('Error:', error);
-        });
+      'AppSync',
+      (_:string, state: State) => {
+          this.journalList = this.renderJournalList(state.journals.list);
+          console.log('journalList', this.journalList);  
       }
     );
   }
 
+  private unbindPubSubEvents() {
+    PubSub.unsubscribe('AppSync');
+  }
+
   private getJournals() {
-    PubSub.publish(
-      'JournalNavigationRequest',
-    );
+    PubSub.publish('JournalNavigationRequest');
   }
 
   private renderJournalList(journalList:JournalSummary[]): string {
@@ -61,6 +58,11 @@ export class JournalNavigation extends LitElement {
 
   constructor() {
     super();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.unbindPubSubEvents();
   }
 
   connectedCallback() {

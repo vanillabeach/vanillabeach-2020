@@ -1,10 +1,17 @@
 import { LitElement, PropertyValues, css, html } from 'lit-element';
-import * as PubSub from 'pubsub-js'
-import {AppFileHandler} from './handlers';
+import * as PubSub from 'pubsub-js';
+import { AppFileHandler } from './handlers';
+import { JournalSummary } from '../../model/journalSummary';
+
+export type State = {
+  journals: {
+    list: JournalSummary[];
+  };
+};
 
 export class App extends LitElement {
   message: string;
-  state: object;
+  state: State;
 
   static get properties() {
     return {
@@ -27,17 +34,26 @@ export class App extends LitElement {
   }
 
   private bindPubSubEvents() {
-    PubSub.subscribe(
-      'JournalNavigationRequest', () => {
-        PubSub.publish('JournalNavigationResponse', AppFileHandler.journalList());
-      }
-    );
+    PubSub.subscribe('JournalNavigationRequest', async () => {
+      this.state.journals.list = await AppFileHandler.journalList();
+      this.state = { ...this.state };
+
+      PubSub.publish('AppSync', this.state);
+    });
+  }
+
+  private getInitialState(): State {
+    return {
+      journals: {
+        list: [],
+      },
+    };
   }
 
   constructor() {
     super();
     this.message = 'No message';
-    this.state = {};
+    this.state = this.getInitialState();
     this.bindPubSubEvents();
   }
 

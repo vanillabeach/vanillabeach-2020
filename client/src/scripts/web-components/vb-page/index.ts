@@ -7,8 +7,6 @@ export class Page extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-
-    console.log('page conntect');
   }
 
   render() {

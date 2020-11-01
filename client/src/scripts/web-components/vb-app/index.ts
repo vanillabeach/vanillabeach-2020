@@ -1,11 +1,16 @@
 import { LitElement, PropertyValues, css, html } from 'lit-element';
 import * as PubSub from 'pubsub-js';
 import { AppFileHandler } from './handlers';
+import { Journal } from '../../model/journal';
 import { JournalSummary } from '../../model/journalSummary';
+import { Signal } from './enums';
 
 export type State = {
-  journals: {
-    list: JournalSummary[];
+  pages: {
+    journal: {
+      entry: Journal;
+      navigation: JournalSummary[];
+    };
   };
 };
 
@@ -34,18 +39,36 @@ export class App extends LitElement {
   }
 
   private bindPubSubEvents() {
-    PubSub.subscribe('JournalNavigationRequest', async () => {
-      this.state.journals.list = await AppFileHandler.journalList();
-      this.state = { ...this.state };
+    PubSub.subscribe(Signal.JournalEntryRequest, async () => {
+      const journalEntry = await AppFileHandler.journalEntry();
+      console.log('>>> journalEntry', journalEntry);
 
-      PubSub.publish('AppSync', this.state);
+      this.state.pages.journal.entry = journalEntry;
+      this.state = { ...this.state };
+      this.broadcastState();
     });
+
+    PubSub.subscribe(Signal.JournalNavigationRequest, async () => {
+      const journalList = await AppFileHandler.journalList();
+      console.log('>>> journalList', journalList);
+
+      this.state.pages.journal.navigation = journalList;
+      this.state = { ...this.state };
+      this.broadcastState();
+    });
+  }
+
+  private broadcastState() {
+    PubSub.publish(Signal.AppSync, this.state);
   }
 
   private getInitialState(): State {
     return {
-      journals: {
-        list: [],
+      pages: {
+        journal: {
+          navigation: null,
+          entry: null,
+        },
       },
     };
   }

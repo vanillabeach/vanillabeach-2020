@@ -1,8 +1,10 @@
+import * as PubSub from 'pubsub-js';
+
 import { LitElement, css, html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { JournalSummary } from '../../model/journalSummary';
 import { State } from '../vb-app/index';
-import * as PubSub from 'pubsub-js';
+import { Signal } from '../vb-app/enums';
 
 export class JournalNavigation extends LitElement {
   selectedJournal: string;
@@ -27,25 +29,23 @@ export class JournalNavigation extends LitElement {
 
   private bindPubSubEvents() {    
     PubSub.subscribe(
-      'AppSync',
+      Signal.AppSync,
       (_:string, state: State) => {
-          this.journalList = this.renderJournalList(state.journals.list);
+          this.journalList = this.renderJournalList(state.pages.journal.navigation);
           console.log('journalList', this.journalList);  
       }
     );
   }
 
   private unbindPubSubEvents() {
-    PubSub.unsubscribe('AppSync');
+    PubSub.unsubscribe(Signal.AppSync);
   }
 
   private getJournals() {
-    PubSub.publish('JournalNavigationRequest');
+    PubSub.publish(Signal.JournalNavigationRequest);
   }
 
   private renderJournalList(journalList:JournalSummary[]): string {
-    console.log('renderJournalList', journalList);
-
     if (!journalList) {
       return ``;
     }

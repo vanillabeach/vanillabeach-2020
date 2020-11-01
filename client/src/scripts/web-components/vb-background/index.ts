@@ -8,8 +8,6 @@ export class Background extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-
-    console.log('connected as well');
   }
 
   static get styles() {

@@ -73,9 +73,6 @@ export class Title extends LitElement {
     const beamEl = this.shadowRoot.querySelector('.beam') as HTMLElement;
     const h1El = this.shadowRoot.getElementById('width-calc');
 
-    console.log('updated', h1El.offsetWidth);
-
-
     beamEl.style.width = `${h1El.offsetWidth}px`;
   }
 

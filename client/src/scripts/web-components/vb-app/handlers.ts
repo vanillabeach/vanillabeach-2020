@@ -6,7 +6,9 @@ import { Config } from '../../config';
 
 export class AppFileHandler {
   static async journalEntry(id = ''): Promise<Journal> {
-    const url = Config.url.server.journal;
+    const url = id === '' 
+      ? Config.url.server.journal
+      : `${Config.url.server.journal}?id=${id}`;
     let result: Journal = null;
 
     await fetch(url, { method: 'GET' })

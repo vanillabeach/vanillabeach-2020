@@ -39,18 +39,19 @@ export class App extends LitElement {
   }
 
   private bindPubSubEvents() {
-    PubSub.subscribe(Signal.JournalEntryRequest, async () => {
-      const journalEntry = await AppFileHandler.journalEntry();
-      console.log('>>> journalEntry', journalEntry);
+    PubSub.subscribe(
+      Signal.JournalEntryRequest,
+      async (_: string, id?: string) => {
+        const journalEntry = await AppFileHandler.journalEntry(id);
 
-      this.state.pages.journal.entry = journalEntry;
-      this.state = { ...this.state };
-      this.broadcastState();
-    });
+        this.state.pages.journal.entry = journalEntry;
+        this.state = { ...this.state };
+        this.broadcastState();
+      }
+    );
 
     PubSub.subscribe(Signal.JournalNavigationRequest, async () => {
       const journalList = await AppFileHandler.journalList();
-      console.log('>>> journalList', journalList);
 
       this.state.pages.journal.navigation = journalList;
       this.state = { ...this.state };

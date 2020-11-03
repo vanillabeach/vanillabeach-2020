@@ -14,7 +14,7 @@ export class JournalNavigation extends LitElement {
   static get properties() {
     return {
       hasLoaded: { type: Boolean },
-      journalList: {type: String},
+      journalList: { type: String },
       selectedJournal: { type: String },
     };
   }
@@ -27,14 +27,35 @@ export class JournalNavigation extends LitElement {
     `;
   }
 
-  private bindPubSubEvents() {    
-    PubSub.subscribe(
-      Signal.AppSync,
-      (_:string, state: State) => {
-          this.journalList = this.renderJournalList(state.pages.journal.navigation);
-          console.log('journalList', this.journalList);  
-      }
+  private bindEvents() {
+    const journalNavigation = this.shadowRoot.querySelector(
+      '.journal-navigation'
+    ) as HTMLElement;
+
+    journalNavigation.addEventListener('change', this.changeJournal);
+  }
+
+  private bindPubSubEvents() {
+    PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {
+      this.journalList = this.renderJournalList(state.pages.journal.navigation);
+    });
+  }
+
+  private changeJournal(el: Event) {
+    el.stopPropagation();
+    el.preventDefault();
+
+    const value = (el.target as HTMLSelectElement).value; 
+    PubSub.publish(Signal.JournalEntryRequest, value);
+  }
+
+  private unbindEvents() {
+    console.log('unbind events');
+
+    const journalNavigation = this.shadowRoot.querySelector(
+      '#journal-navigation'
     );
+    journalNavigation.removeEventListener('change', this.changeJournal);
   }
 
   private unbindPubSubEvents() {
@@ -45,23 +66,20 @@ export class JournalNavigation extends LitElement {
     PubSub.publish(Signal.JournalNavigationRequest);
   }
 
-  private renderJournalList(journalList:JournalSummary[]): string {
+  private renderJournalList(journalList: JournalSummary[]): string {
     if (!journalList) {
       return ``;
     }
 
     const html = journalList
-      .map((x: JournalSummary) => `<option>${x.title}</option>`)
+      .map((x: JournalSummary) => `<option value='${x.id}'>${x.title}</option>`)
       .join('');
     return `${html}`;
   }
 
-  constructor() {
-    super();
-  }
-
   disconnectedCallback() {
     super.disconnectedCallback();
+    this.unbindEvents();
     this.unbindPubSubEvents();
   }
 
@@ -71,10 +89,18 @@ export class JournalNavigation extends LitElement {
     this.getJournals();
   }
 
+  async firstUpdated() {
+    this.bindEvents();
+  }
+
+  updated() {}
+
   render() {
-    return html`<select>
-      ${unsafeHTML(this.journalList)}
-    </select>`;
+    return html`
+      <select class="journal-navigation">
+        ${unsafeHTML(this.journalList)}
+      </select>
+    `;
   }
 }
 customElements.define('vb-journal-navigation', JournalNavigation);

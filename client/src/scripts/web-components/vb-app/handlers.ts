@@ -7,8 +7,8 @@ import { Config } from '../../config';
 export class AppFileHandler {
   static async journalEntry(id = ''): Promise<Journal> {
     const url = id === '' 
-      ? Config.url.server.journal
-      : `${Config.url.server.journal}?id=${id}`;
+      ? Config.url.server.journal.entry
+      : `${Config.url.server.journal.entry}?id=${id}`;
     let result: Journal = null;
 
     await fetch(url, { method: 'GET' })
@@ -24,7 +24,7 @@ export class AppFileHandler {
   }
 
   static async journalList(): Promise<JournalSummary[]> {
-    const url = Config.url.server.journalSummaryList;
+    const url = Config.url.server.journal.list;
     let result: JournalSummary[] = null;
 
     await fetch(url, { method: 'GET' })

@@ -6,6 +6,7 @@ import { Journal } from '../../model/journal';
 import { Utils } from '../../utils';
 import { State } from '../vb-app/index';
 import { Signal } from '../vb-app/enums';
+import { Config } from '../../config';
 
 const renderEffects = false;
 
@@ -70,6 +71,10 @@ class JournalWebComponent extends LitElement {
       :host .journal-entry {
         opacity: ${journalOpacity};
       }
+
+      :host .journal-entry > img {
+        width: 100%;
+      }
     `;
   }
 
@@ -83,6 +88,7 @@ class JournalWebComponent extends LitElement {
         <div class="frame">
           <h2>${this.journal.title}</h2>
           <article class="journal-entry">
+            <img src="${this.journalImagePath}" />
             ${unsafeHTML(this.renderedText)}
           </article>
         </div>
@@ -103,11 +109,11 @@ class JournalWebComponent extends LitElement {
   }
 
   private bindPubSubEvents() {
-    PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {    
+    PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {
       if (!state.pages.journal.entry) {
         return;
       }
-      this.journal = state.pages.journal.entry;            
+      this.journal = state.pages.journal.entry;
       this.setAttribute('content', Marked.parse(this.journal.entry));
       if (renderEffects) {
         window.setTimeout(() => this.animateLettering(), 1000);
@@ -121,10 +127,7 @@ class JournalWebComponent extends LitElement {
 
   private bindWindowEvents() {
     if (renderEffects) {
-      window.addEventListener(
-        'scroll',
-        Utils.debounce(this.scrollEvent, 100)
-      );
+      window.addEventListener('scroll', Utils.debounce(this.scrollEvent, 100));
     }
   }
 
@@ -172,6 +175,10 @@ class JournalWebComponent extends LitElement {
 
   private getJournalEntry() {
     PubSub.publish(Signal.JournalEntryRequest);
+  }
+
+  private get journalImagePath(): string {
+    return `${Config.url.server.journal.media}/${this.journal.picUrl}`;    
   }
 }
 

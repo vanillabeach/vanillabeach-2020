@@ -92,7 +92,6 @@ export class App extends LitElement {
   render() {
     return html`
       <!-- <vb-background class="background"></vb-background> -->
-      <button id="test" />Test</button>
       <section class="site">
         <slot></slot>
       </section>

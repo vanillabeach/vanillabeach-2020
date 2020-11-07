@@ -24,9 +24,11 @@ export const Config = {
   navigation,
   url: {
     server: {
-      journal: `${serverUrl}/journal`,
-      journalSummaryList: `${serverUrl}/journals`,
+      journal: {
+        entry: `${serverUrl}/journal`,
+        list: `${serverUrl}/journals`,
+        media: `${serverUrl}/media/journal`,
+      },
     },
   },
 };
-

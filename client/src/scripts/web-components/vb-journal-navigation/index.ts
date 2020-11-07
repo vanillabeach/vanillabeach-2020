@@ -1,21 +1,22 @@
 import * as PubSub from 'pubsub-js';
 
 import { LitElement, css, html } from 'lit-element';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { JournalSummary } from '../../model/journalSummary';
 import { State } from '../vb-app/index';
 import { Signal } from '../vb-app/enums';
 
 export class JournalNavigation extends LitElement {
-  selectedJournal: string;
-  hasLoaded: boolean;
-  private journalList: string;
+  id: string;
+  private journalList: JournalSummary[];
+  private previousJournalId: string;
+  private previousJournalTitle: string;
+  private nextJournalId: string;
+  private nextJournalTitle: string;
 
   static get properties() {
     return {
-      hasLoaded: { type: Boolean },
+      id: { type: String },
       journalList: { type: String },
-      selectedJournal: { type: String },
     };
   }
   static get styles() {
@@ -28,16 +29,33 @@ export class JournalNavigation extends LitElement {
   }
 
   private bindEvents() {
-    const journalNavigation = this.shadowRoot.querySelector(
-      '.journal-navigation'
-    ) as HTMLElement;
+    const previousJournal: HTMLElement = this.shadowRoot.querySelector(
+      '*[data-id="previous-journal"]'
+    );
+    const nextJournal: HTMLElement = this.shadowRoot.querySelector(
+      '*[data-id="next-journal"]'
+    );
 
-    journalNavigation.addEventListener('change', this.changeJournal);
+    console.log('this.shadowRoot', this.shadowRoot);
+    console.log('nextJournal', previousJournal, nextJournal);
+
+    if (previousJournal) {
+      previousJournal.addEventListener('click', this.changeJournal);
+    }
+
+    if (nextJournal) {
+      nextJournal.addEventListener('click', this.changeJournal);
+    }
   }
 
   private bindPubSubEvents() {
     PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {
-      this.journalList = this.renderJournalList(state.pages.journal.navigation);
+      if (!state.pages.journal.navigation) {
+        return;
+      }
+      this.id = state.pages.journal.entry.id;
+      this.journalList = [...state.pages.journal.navigation].reverse();
+      this.getNavigationLinks();
     });
   }
 
@@ -45,17 +63,22 @@ export class JournalNavigation extends LitElement {
     el.stopPropagation();
     el.preventDefault();
 
-    const value = (el.target as HTMLSelectElement).value; 
-    PubSub.publish(Signal.JournalEntryRequest, value);
+    const target = el.target as HTMLElement;
+    const journalId = target.getAttribute('data-value');
+
+    PubSub.publish(Signal.JournalEntryRequest, journalId);
   }
 
   private unbindEvents() {
-    console.log('unbind events');
-
-    const journalNavigation = this.shadowRoot.querySelector(
-      '#journal-navigation'
+    const previousJournal: HTMLElement = this.shadowRoot.querySelector(
+      '*[data-id="previous-journal"]'
     );
-    journalNavigation.removeEventListener('change', this.changeJournal);
+    const nextJournal: HTMLElement = this.shadowRoot.querySelector(
+      '*[data-id="previous-journal"]'
+    );
+
+    previousJournal.removeEventListener('click', this.changeJournal);
+    nextJournal.removeEventListener('click', this.changeJournal);
   }
 
   private unbindPubSubEvents() {
@@ -66,15 +89,22 @@ export class JournalNavigation extends LitElement {
     PubSub.publish(Signal.JournalNavigationRequest);
   }
 
-  private renderJournalList(journalList: JournalSummary[]): string {
-    if (!journalList) {
-      return ``;
-    }
+  private getNavigationLinks() {
+    console.log('journalList', this.journalList);
 
-    const html = journalList
-      .map((x: JournalSummary) => `<option value='${x.id}'>${x.title}</option>`)
-      .join('');
-    return `${html}`;
+    this.journalList.forEach((entry: JournalSummary, index: number) => {
+      if (entry.id == this.id) {
+        if (index > 0) {
+          this.previousJournalId = this.journalList[index - 1].id;
+          this.previousJournalTitle = this.journalList[index - 1].title;
+        }
+        if (index < this.journalList.length - 1) {
+          this.nextJournalId = this.journalList[index + 1].id;
+          this.nextJournalTitle = this.journalList[index + 1].title;
+        }
+        return;
+      }
+    });
   }
 
   disconnectedCallback() {
@@ -89,18 +119,28 @@ export class JournalNavigation extends LitElement {
     this.getJournals();
   }
 
-  async firstUpdated() {
+  updated() {
     this.bindEvents();
   }
 
-  updated() {}
-
   render() {
-    return html`
-      <select class="journal-navigation">
-        ${unsafeHTML(this.journalList)}
-      </select>
-    `;
+    const previousJournal = html`<a
+      href="#"
+      data-id="previous-journal"
+      data-value="${this.previousJournalId}"
+    >
+      ${this.previousJournalTitle ? this.previousJournalTitle : ''}
+    </a>`;
+
+    const nextJournal = html`<a
+      href="#"
+      data-id="next-journal"
+      data-value="${this.nextJournalId}"
+    >
+      ${this.nextJournalTitle ? this.nextJournalTitle : ''}
+    </a>`;
+
+    return html`${previousJournal} | ${nextJournal}`;
   }
 }
 customElements.define('vb-journal-navigation', JournalNavigation);

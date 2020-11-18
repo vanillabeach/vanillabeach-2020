@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # start client
-cd client && npm run build:dev
+cd client && rm -rf dist && npm run build:dev

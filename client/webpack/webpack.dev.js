@@ -1,31 +1,33 @@
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const path = require('path');
+const rimraf = require('rimraf');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-const { prod_Path, src_Path } = require("./path");
-const { selectedPreprocessor } = require("./loader");
+const { prod_Path, src_Path } = require('./path');
+const { selectedPreprocessor } = require('./loader');
 
 module.exports = {
   watch: true,
   entry: {
-    main: "./" + src_Path + "/index.ts",
+    main: './' + src_Path + '/index.ts',
   },
   resolve: {
-    extensions: [".ts", ".js"],
+    extensions: ['.ts', '.js'],
   },
   output: {
     path: path.resolve(__dirname, prod_Path),
-    filename: "[name].[chunkhash].js",
+    filename: '[name].[chunkhash].js',
   },
-  devtool: "source-map",
+  devtool: 'source-map',
   devServer: {
-    open: true,
+    writeToDisk: true,
+    contentBase: path.join(__dirname, 'dist'),
   },
   module: {
     rules: [
       {
         test: /\.ts?$/,
-        use: "ts-loader",
+        use: 'ts-loader',
         exclude: /node_modules/,
       },
       {
@@ -35,14 +37,14 @@ module.exports = {
             loader: MiniCssExtractPlugin.loader,
           },
           {
-            loader: "css-loader",
+            loader: 'css-loader',
             options: {
               modules: false,
               sourceMap: true,
             },
           },
           {
-            loader: "postcss-loader",
+            loader: 'postcss-loader',
             options: {
               sourceMap: true,
             },
@@ -59,7 +61,7 @@ module.exports = {
         test: /\.(woff|woff2|eot|ttf|otf)$/,
         use: [
           {
-            loader: "file-loader",
+            loader: 'file-loader',
           },
         ],
       },
@@ -67,7 +69,10 @@ module.exports = {
         test: /\.(png|svg|jpg|gif)$/,
         use: [
           {
-            loader: "file-loader",
+            loader: 'file-loader',
+            options: {
+              name: '[path][name].[ext]',
+            },
           },
         ],
       },
@@ -75,13 +80,13 @@ module.exports = {
   },
   plugins: [
     new MiniCssExtractPlugin({
-      filename: "style.css",
+      filename: 'style.css',
     }),
     new HtmlWebpackPlugin({
       inject: false,
       hash: false,
-      template: "./" + src_Path + "/index.html",
-      filename: "index.html",
+      template: './' + src_Path + '/index.html',
+      filename: 'index.html',
     }),
   ],
 };

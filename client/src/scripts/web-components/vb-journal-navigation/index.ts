@@ -25,6 +25,28 @@ export class JournalNavigation extends LitElement {
         max-width: 750px;
         margin: auto;
       }
+
+      :host a {
+        color: #ffff00;
+        text-decoration: none;
+      }
+
+      :host .cell-container {
+        display: flex;
+        flex-direction: horizontal;
+      }
+
+      :host .cell {
+        flex: 1;
+      }
+
+      :host .cell.first {
+        text-align: left;
+      }
+
+      :host .cell.second {
+        text-align: right;
+      }
     `;
   }
 
@@ -35,9 +57,6 @@ export class JournalNavigation extends LitElement {
     const nextJournal: HTMLElement = this.shadowRoot.querySelector(
       '*[data-id="next-journal"]'
     );
-
-    console.log('this.shadowRoot', this.shadowRoot);
-    console.log('nextJournal', previousJournal, nextJournal);
 
     if (previousJournal) {
       previousJournal.addEventListener('click', this.changeJournal);
@@ -90,8 +109,6 @@ export class JournalNavigation extends LitElement {
   }
 
   private getNavigationLinks() {
-    console.log('journalList', this.journalList);
-
     this.journalList.forEach((entry: JournalSummary, index: number) => {
       if (entry.id == this.id) {
         if (index > 0) {
@@ -129,7 +146,7 @@ export class JournalNavigation extends LitElement {
       data-id="previous-journal"
       data-value="${this.previousJournalId}"
     >
-      ${this.previousJournalTitle ? this.previousJournalTitle : ''}
+      ${this.previousJournalTitle ? `« ${this.previousJournalTitle}` : ''}
     </a>`;
 
     const nextJournal = html`<a
@@ -137,10 +154,19 @@ export class JournalNavigation extends LitElement {
       data-id="next-journal"
       data-value="${this.nextJournalId}"
     >
-      ${this.nextJournalTitle ? this.nextJournalTitle : ''}
+      ${this.nextJournalTitle ? `${this.nextJournalTitle} »` : ''}
     </a>`;
 
-    return html`${previousJournal} | ${nextJournal}`;
+    return html`
+      <div class="cell-container">
+        <div class="cell first">
+          ${previousJournal}
+        </div>
+        <div class="cell second">
+          ${nextJournal}
+        </div>
+      </div>
+    `;
   }
 }
 customElements.define('vb-journal-navigation', JournalNavigation);

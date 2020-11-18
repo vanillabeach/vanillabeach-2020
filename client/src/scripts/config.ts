@@ -23,11 +23,12 @@ const navigation: { [key: string]: navLabel } = {
 export const Config = {
   navigation,
   url: {
-    server: {
+    server: {    
+      backgrounds: `/resources/site/backgrounds`,
       journal: {
         entry: `${serverUrl}/journal`,
         list: `${serverUrl}/journals`,
-        media: `${serverUrl}/media/journal`,
+        media: `/resources/journal`,        
       },
     },
   },

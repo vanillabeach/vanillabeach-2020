@@ -3,9 +3,12 @@ import { Config } from '../../config';
 
 export class Background extends LitElement {
   private backgroundImage: HTMLImageElement;
+  private foregroundImage: HTMLImageElement;
+  private canPaint: boolean;
 
   constructor() {
     super();
+    this.canPaint = false;
   }
 
   connectedCallback() {
@@ -23,42 +26,35 @@ export class Background extends LitElement {
   }
 
   private paintMural() {
-    const bodyEl: HTMLElement = document.querySelector('body');
+    if (this.canPaint === false) {
+      return;
+    }
+
     const muralEl: HTMLCanvasElement = this.shadowRoot.querySelector('#mural');
     const ctx = muralEl.getContext('2d');
-    const bgImage: HTMLImageElement = new Image();
-    const fgImage: HTMLImageElement = new Image();
     const parallaxRatio = (muralEl.offsetHeight / window.innerHeight) * -1;
+    const imageRatio =
+      this.foregroundImage.width < this.foregroundImage.height
+        ? this.foregroundImage.height / this.foregroundImage.width
+        : this.foregroundImage.width / this.foregroundImage.height;
 
-    bgImage.onload = () => {
-      fgImage.onload = () => {
-        const imageRatio =
-          fgImage.width < fgImage.height
-            ? fgImage.height / fgImage.width
-            : fgImage.width / fgImage.height;
+    const muralWidth = muralEl.offsetWidth;
+    const muralHeight = muralEl.offsetWidth * imageRatio;
 
-        const muralWidth = muralEl.offsetWidth;
-        const muralHeight = muralEl.offsetWidth * imageRatio;
-
-        ctx.drawImage(
-          bgImage,
-          0,
-          window.scrollY * parallaxRatio * 0.55,
-          muralWidth,
-          muralHeight
-        );
-        ctx.drawImage(
-          fgImage,
-          0,
-          window.scrollY * parallaxRatio * 0.75,
-          muralWidth,
-          muralHeight
-        );
-      };
-    };
-
-    bgImage.src = `${Config.url.server.backgrounds}/bg-underlay-home.png`;
-    fgImage.src = `${Config.url.server.backgrounds}/bg-mask.png`;
+    ctx.drawImage(
+      this.backgroundImage,
+      0,
+      window.scrollY * parallaxRatio * 0.55,
+      muralWidth,
+      muralHeight
+    );
+    ctx.drawImage(
+      this.foregroundImage,
+      0,
+      window.scrollY * parallaxRatio * 0.75,
+      muralWidth,
+      muralHeight
+    );
   }
 
   private resizeMural() {
@@ -71,8 +67,29 @@ export class Background extends LitElement {
     this.paintMural();
   }
 
+  private init() {
+    const muralEl: HTMLCanvasElement = this.shadowRoot.querySelector('#mural');
+    function checkBackgroundsHaveLoaded() {
+      if (this.backgroundImage.width > 0 && this.foregroundImage.width > 0) {
+        this.canPaint = true;
+        this.resizeMural();
+        setTimeout(() => muralEl.classList.add('show'), 500);
+      }
+    }
+
+    muralEl.classList.remove('show');
+    
+    this.canPaint = false;
+    this.backgroundImage = new Image();
+    this.foregroundImage = new Image();
+    this.backgroundImage.src = `${Config.url.server.backgrounds}/bg-underlay-home.png`;
+    this.foregroundImage.src = `${Config.url.server.backgrounds}/bg-mask.png`;
+    this.backgroundImage.onload = checkBackgroundsHaveLoaded.bind(this);
+    this.foregroundImage.onload = checkBackgroundsHaveLoaded.bind(this);
+  }
+
   updated() {
-    this.resizeMural();
+    this.init();
   }
 
   private unbindWindowEvents() {
@@ -94,8 +111,14 @@ export class Background extends LitElement {
       }
 
       :host canvas {
+        transition: opacity 0.2s ease-in;
         display: block;
         margin: auto;
+        opacity: 0;
+      }
+
+      :host canvas.show {
+        opacity: 1;
       }
     `;
   }

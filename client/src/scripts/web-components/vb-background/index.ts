@@ -24,14 +24,11 @@ export class Background extends LitElement {
 
   private paintMural() {
     const bodyEl: HTMLElement = document.querySelector('body');
-
     const muralEl: HTMLCanvasElement = this.shadowRoot.querySelector('#mural');
     const ctx = muralEl.getContext('2d');
     const bgImage: HTMLImageElement = new Image();
     const fgImage: HTMLImageElement = new Image();
-    const parallaxRatio = -1;
-
-    console.log('parallax', window.scrollY * parallaxRatio);
+    const parallaxRatio = (muralEl.offsetHeight / window.innerHeight) * -1;
 
     bgImage.onload = () => {
       fgImage.onload = () => {
@@ -40,19 +37,22 @@ export class Background extends LitElement {
             ? fgImage.height / fgImage.width
             : fgImage.width / fgImage.height;
 
+        const muralWidth = muralEl.offsetWidth;
+        const muralHeight = muralEl.offsetWidth * imageRatio;
+
         ctx.drawImage(
           bgImage,
           0,
-          window.scrollY * parallaxRatio * 0.5,
-          muralEl.offsetWidth,
-          muralEl.offsetWidth * imageRatio
+          window.scrollY * parallaxRatio * 0.55,
+          muralWidth,
+          muralHeight
         );
         ctx.drawImage(
           fgImage,
           0,
-          window.scrollY * parallaxRatio * 0.7,
-          muralEl.offsetWidth,
-          muralEl.offsetWidth * imageRatio
+          window.scrollY * parallaxRatio * 0.75,
+          muralWidth,
+          muralHeight
         );
       };
     };
@@ -90,7 +90,7 @@ export class Background extends LitElement {
         right: 0;
         z-index: -100;
         overflow: hidden;
-        opacity: 0.15;
+        opacity: 0.1;
       }
 
       :host canvas {

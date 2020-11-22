@@ -8,6 +8,7 @@ import { Signal } from '../vb-app/enums';
 import { Config } from '../../config';
 
 const renderEffects = false;
+const fadeDuration = 200;
 
 class JournalWebComponent extends LitElement {
   private content: string;
@@ -50,10 +51,13 @@ class JournalWebComponent extends LitElement {
 
   static get styles() {
     const journalOpacity = renderEffects ? css`var(--journalOpacity)` : css`1`;
+    const opacityTransition = css`${fadeDuration}ms`;
 
     return css`
       :host {
         line-height: 1.5;
+        font-size: var(--body);
+        color: var(--body-text-color);
       }
 
       :host h1 {
@@ -71,12 +75,22 @@ class JournalWebComponent extends LitElement {
         font-size: var(--h4);
       }
 
+      :host #journal {
+        transition: opacity ${opacityTransition} ease-in;
+        opacity: 0;
+      }
+
+      :host #journal.show {
+        opacity: 1;
+      }
+
       :host .journal-entry {
         opacity: ${journalOpacity};
       }
 
       :host .journal-entry span {
         background-color: transparent !important;
+        font-size: var(--body) !important;
       }
 
       :host .journal-entry > img {
@@ -88,7 +102,8 @@ class JournalWebComponent extends LitElement {
       }
 
       :host a {
-        color: #ffff00;
+        color: var(--link-colour);
+        font-size: var(--body) !important;
         text-decoration: none;
       }
     `;
@@ -96,15 +111,15 @@ class JournalWebComponent extends LitElement {
 
   render() {
     if (!this.journal) {
-      return html``;
+      return html`<section id="journal"></section>`;
     }
 
     return html`
-      <section>
+      <section id="journal">
         <div class="frame">
           <h2>${this.journal.title}</h2>
           <article class="journal-entry">
-            <img src="${this.journalImagePath}" />
+            <img id="journal-header-image" />
             ${unsafeHTML(this.content)}
           </article>
         </div>
@@ -129,8 +144,12 @@ class JournalWebComponent extends LitElement {
       if (!state.pages.journal.entry) {
         return;
       }
-      this.journal = state.pages.journal.entry;
-      this.setAttribute('content', this.journal.entry);
+      this.fadeOut(() => {
+        this.journal = state.pages.journal.entry;
+        this.setAttribute('content', this.journal.entry);
+        this.init();
+      });
+
       // if (renderEffects) {
       //   window.setTimeout(() => this.animateLettering(), 1000);
       // }
@@ -144,6 +163,29 @@ class JournalWebComponent extends LitElement {
   private bindWindowEvents() {
     if (renderEffects) {
       window.addEventListener('scroll', Utils.debounce(this.scrollEvent, 100));
+    }
+  }
+
+  private init() {
+    const journalHeaderImageEl:HTMLImageElement = this.shadowRoot.querySelector(
+      '#journal-header-image'
+    );
+    journalHeaderImageEl.onload = () => this.fadeIn();
+    journalHeaderImageEl.src = this.journalImagePath;
+  }
+
+  private fadeIn() {
+    window.scrollTo(0,0);
+    const journalEl:HTMLElement = this.shadowRoot.querySelector('#journal');
+    journalEl.classList.add('show');
+
+  }
+
+  private fadeOut(callback?: Function) {
+    const journalEl:HTMLElement = this.shadowRoot.querySelector('#journal');
+    journalEl.classList.remove('show');
+    if (callback) {
+      setTimeout(callback.bind(this), fadeDuration);
     }
   }
 
@@ -194,7 +236,7 @@ class JournalWebComponent extends LitElement {
   }
 
   private get journalImagePath(): string {
-    return `${Config.url.server.journal.media}/${this.journal.picUrl}`;    
+    return `${Config.url.server.journal.media}/${this.journal.picUrl}`;
   }
 }
 

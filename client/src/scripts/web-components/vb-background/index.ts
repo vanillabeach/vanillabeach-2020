@@ -59,7 +59,7 @@ export class Background extends LitElement {
 
   private resizeMural() {
     const muralEl: HTMLElement = this.shadowRoot.querySelector('#mural');
-    const width = Math.min(window.innerWidth, 1200);
+    const width = window.innerWidth; //Math.min(window.innerWidth, 1200);
     const height = window.innerHeight;
 
     muralEl.setAttribute('width', `${width}`);
@@ -82,8 +82,8 @@ export class Background extends LitElement {
     this.canPaint = false;
     this.backgroundImage = new Image();
     this.foregroundImage = new Image();
-    this.backgroundImage.src = `${Config.url.server.backgrounds}/bg-underlay-home.png`;
-    this.foregroundImage.src = `${Config.url.server.backgrounds}/bg-mask.png`;
+    this.backgroundImage.src = `${Config.url.server.backgrounds}/bg-landing.png`;
+    this.foregroundImage.src = `${Config.url.server.backgrounds}/bg-mask-white.png`;
     this.backgroundImage.onload = checkBackgroundsHaveLoaded.bind(this);
     this.foregroundImage.onload = checkBackgroundsHaveLoaded.bind(this);
   }

@@ -4,8 +4,12 @@ import { AppFileHandler } from './handlers';
 import { Journal } from '../../model/journal';
 import { JournalSummary } from '../../model/journalSummary';
 import { Signal } from './enums';
+import { Navigation, PageUrl } from './navigation';
 
 export type State = {
+  intervalIds: {
+    navigation: number,
+  },
   pages: {
     journal: {
       entry: Journal;
@@ -15,14 +19,10 @@ export type State = {
 };
 
 export class App extends LitElement {
-  message: string;
   state: State;
 
   static get properties() {
     return {
-      message: {
-        type: String,
-      },
       state: {
         attribute: false,
       },
@@ -57,6 +57,13 @@ export class App extends LitElement {
       this.state = { ...this.state };
       this.broadcastState();
     });
+
+    PubSub.subscribe(
+      Signal.UrlChange,
+      async (_: string, id?: PageUrl) => {
+        console.log('url change: ', id);
+      }
+    );
   }
 
   private broadcastState() {
@@ -64,7 +71,12 @@ export class App extends LitElement {
   }
 
   private getInitialState(): State {
+    const navigation = new Navigation();
+
     return {
+      intervalIds: {
+        navigation: navigation.init(),
+      },
       pages: {
         journal: {
           navigation: null,
@@ -74,11 +86,14 @@ export class App extends LitElement {
     };
   }
 
-  constructor() {
-    super();
-    this.message = 'No message';
+  private init() {
     this.state = this.getInitialState();
     this.bindPubSubEvents();
+  }
+
+  constructor() {
+    super();
+    this.init();
   }
 
   updated(changedProperties: PropertyValues) {

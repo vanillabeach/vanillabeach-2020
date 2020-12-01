@@ -1,21 +1,26 @@
 const serverUrl = 'http://localhost:4040/server';
 
 interface navLabel {
+  pageId: string;
   label: string;
   needsLogin?: true;
 }
 
 const navigation: { [key: string]: navLabel } = {
   journal: {
+    pageId: 'journal',
     label: 'Journal',
   },
   photosAndVideos: {
+    pageId: 'photos-and-videos',
     label: 'Photos & Videos',
   },
   magazine: {
+    pageId: 'magazine',
     label: 'Magazine',
   },
   junk: {
+    pageId: 'junk',
     label: 'Junk',
   },
 };

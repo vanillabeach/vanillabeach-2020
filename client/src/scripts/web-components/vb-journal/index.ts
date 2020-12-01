@@ -58,6 +58,7 @@ class JournalWebComponent extends LitElement {
         line-height: 1.5;
         font-size: var(--body);
         color: var(--body-text-color);
+        text-shadow: 0px 1px var(--foreground);
       }
 
       :host h1 {

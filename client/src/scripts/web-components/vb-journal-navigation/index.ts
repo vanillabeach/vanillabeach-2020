@@ -1,7 +1,8 @@
 import * as PubSub from 'pubsub-js';
-
 import { LitElement, css, html } from 'lit-element';
+import { Config } from '../../config';
 import { JournalSummary } from '../../model/journalSummary';
+import { Navigation } from '../vb-app/navigation';
 import { State } from '../vb-app/index';
 import { Signal } from '../vb-app/enums';
 
@@ -84,8 +85,7 @@ export class JournalNavigation extends LitElement {
 
     const target = el.target as HTMLElement;
     const journalId = target.getAttribute('data-value');
-
-    PubSub.publish(Signal.JournalEntryRequest, journalId);
+    Navigation.navigateTo(Config.navigation.journal.pageId, journalId);     
   }
 
   private unbindEvents() {

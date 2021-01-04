@@ -70,7 +70,7 @@ export class JournalNavigation extends LitElement {
 
   private bindPubSubEvents() {
     PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {
-      if (!state.pages.journal.navigation) {
+      if (!state.pages.journal.navigation || !state.pages.journal.entry) {
         return;
       }
       this.id = state.pages.journal.entry.id;
@@ -85,7 +85,7 @@ export class JournalNavigation extends LitElement {
 
     const target = el.target as HTMLElement;
     const journalId = target.getAttribute('data-value');
-    Navigation.navigateTo(Config.navigation.journal.pageId, journalId);     
+    Navigation.navigateTo(Config.navigation.journal.pageId, journalId);
   }
 
   private unbindEvents() {
@@ -159,12 +159,8 @@ export class JournalNavigation extends LitElement {
 
     return html`
       <div class="cell-container">
-        <div class="cell first">
-          ${previousJournal}
-        </div>
-        <div class="cell second">
-          ${nextJournal}
-        </div>
+        <div class="cell first">${previousJournal}</div>
+        <div class="cell second">${nextJournal}</div>
       </div>
     `;
   }

@@ -4,6 +4,7 @@ import { Config } from '../../config';
 export class Background extends LitElement {
   private backgroundImage: HTMLImageElement;
   private foregroundImage: HTMLImageElement;
+  private maskImage: HTMLImageElement;
   private canPaint: boolean;
 
   constructor() {
@@ -38,13 +39,20 @@ export class Background extends LitElement {
         ? this.foregroundImage.height / this.foregroundImage.width
         : this.foregroundImage.width / this.foregroundImage.height;
 
-    const muralWidth = muralEl.offsetWidth;
+    const muralWidth = Math.min(window.innerWidth, Config.size.backgroundMax);
     const muralHeight = muralEl.offsetWidth * imageRatio;
 
     ctx.drawImage(
       this.backgroundImage,
       0,
       window.scrollY * parallaxRatio * 0.55,
+      muralWidth,
+      muralHeight
+    );
+    ctx.drawImage(
+      this.maskImage,
+      0,
+      window.scrollY * parallaxRatio * 0.65,
       muralWidth,
       muralHeight
     );
@@ -59,7 +67,7 @@ export class Background extends LitElement {
 
   private resizeMural() {
     const muralEl: HTMLElement = this.shadowRoot.querySelector('#mural');
-    const width = window.innerWidth; //Math.min(window.innerWidth, 1200);
+    const width = Math.min(window.innerWidth, Config.size.backgroundMax);
     const height = window.innerHeight;
 
     muralEl.setAttribute('width', `${width}`);
@@ -70,7 +78,9 @@ export class Background extends LitElement {
   private init() {
     const muralEl: HTMLCanvasElement = this.shadowRoot.querySelector('#mural');
     function checkBackgroundsHaveLoaded() {
-      if (this.backgroundImage.width > 0 && this.foregroundImage.width > 0) {
+      if (this.backgroundImage.width > 0 && 
+          this.foregroundImage.width > 0 && 
+          this.maskImage.width > 0) {
         this.canPaint = true;
         this.resizeMural();
         setTimeout(() => muralEl.classList.add('show'), 500);
@@ -82,10 +92,13 @@ export class Background extends LitElement {
     this.canPaint = false;
     this.backgroundImage = new Image();
     this.foregroundImage = new Image();
+    this.maskImage = new Image();
     this.backgroundImage.src = `${Config.url.server.backgrounds}/bg-landing.png`;
     this.foregroundImage.src = `${Config.url.server.backgrounds}/bg-mask-white.png`;
+    this.maskImage.src = `${Config.url.server.backgrounds}/bg-center-white.png`;
     this.backgroundImage.onload = checkBackgroundsHaveLoaded.bind(this);
     this.foregroundImage.onload = checkBackgroundsHaveLoaded.bind(this);
+    this.maskImage.onload = checkBackgroundsHaveLoaded.bind(this);
   }
 
   updated() {
@@ -107,17 +120,19 @@ export class Background extends LitElement {
         right: 0;
         z-index: -100;
         overflow: hidden;
-        opacity: 0.1;
+        opacity: 1;
       }
 
-      :host canvas {
+      :host  #mural {
+        box-sizing: border-box;     
         transition: opacity 0.2s ease-in;
+        max-width: ${Config.size.backgroundMax};
         display: block;
         margin: auto;
         opacity: 0;
       }
 
-      :host canvas.show {
+      :host #mural.show {
         opacity: 1;
       }
     `;

@@ -51,14 +51,16 @@ class JournalWebComponent extends LitElement {
 
   static get styles() {
     const journalOpacity = renderEffects ? css`var(--journalOpacity)` : css`1`;
-    const opacityTransition = css`${fadeDuration}ms`;
+    const opacityTransition = css`
+      ${fadeDuration}ms
+    `;
 
     return css`
       :host {
         line-height: 1.5;
         font-size: var(--body);
         color: var(--body-text-color);
-        text-shadow: 0px 1px var(--foreground);
+        text-shadow: var(--body-text-shadow);
       }
 
       :host h1 {
@@ -94,12 +96,24 @@ class JournalWebComponent extends LitElement {
         font-size: var(--body) !important;
       }
 
-      :host .journal-entry > img {
+      :host .journal-content > img {
         width: 100%;
       }
 
-      :host .journal-entry > div > img {
+      :host .journal-content > div > img {
         max-width: 50%;
+      }
+
+      :host .journal-content,
+      :host .journal-title {
+        display: block;
+        padding: var(--section-padding);
+      }
+
+      :host #journal-header-image {
+        width: 100%;
+        margin-top: 0;
+        margin-bottom: 0;      
       }
 
       :host a {
@@ -118,10 +132,12 @@ class JournalWebComponent extends LitElement {
     return html`
       <section id="journal">
         <div class="frame">
-          <h2>${this.journal.title}</h2>
-          <article class="journal-entry">
+          <h2 class="journal-title">${this.journal.title}</h2>
+          <article id="journal-entry" class="journal-entry">
             <img id="journal-header-image" />
+            <div class="journal-content">
             ${unsafeHTML(this.content)}
+            </div>
           </article>
         </div>
       </section>
@@ -168,22 +184,32 @@ class JournalWebComponent extends LitElement {
   }
 
   private init() {
-    const journalHeaderImageEl:HTMLImageElement = this.shadowRoot.querySelector(
-      '#journal-header-image'
-    );
-    journalHeaderImageEl.onload = () => this.fadeIn();
-    journalHeaderImageEl.src = this.journalImagePath;
+    setTimeout(() => {
+      const journalHeaderImageEl: HTMLImageElement = this.shadowRoot.querySelector(
+        '#journal-header-image'
+      );
+      const journalEntryEl: HTMLElement = this.shadowRoot.querySelector(
+        '#journal-entry'
+      );
+
+      journalHeaderImageEl.onload = () => {
+        const offset = journalHeaderImageEl.height;
+        journalEntryEl.style.marginTop = `${offset}px`;
+        journalHeaderImageEl.style.marginTop = `-${offset}px`;
+        this.fadeIn();
+      }
+      journalHeaderImageEl.src = this.journalImagePath;
+    }, 50);
   }
 
   private fadeIn() {
-    window.scrollTo(0,0);
-    const journalEl:HTMLElement = this.shadowRoot.querySelector('#journal');
+    window.scrollTo(0, 0);
+    const journalEl: HTMLElement = this.shadowRoot.querySelector('#journal');
     journalEl.classList.add('show');
-
   }
 
   private fadeOut(callback?: Function) {
-    const journalEl:HTMLElement = this.shadowRoot.querySelector('#journal');
+    const journalEl: HTMLElement = this.shadowRoot.querySelector('#journal');
     journalEl.classList.remove('show');
     if (callback) {
       setTimeout(callback.bind(this), fadeDuration);

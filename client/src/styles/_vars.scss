@@ -1,17 +1,25 @@
 html {
 
-  --headerFontFamily: 'Cinerama', 'Helvetica', 'Arial', 'sans-serif';
   --journalOpacity: 1;
   
-  --background: #000;
-  --foreground: #fff;
+  // colors and shadows
+  --background-color: #fff;
   --body-text-color: #222222;
+  --body-text-shadow: 0px 1px 0px var(--background-color);
+  --foreground-color: #000;
   --link-colour: #000088;
+  --shadow-faint-color: #00000011;
 
+  // fonts
+  --header-font-family: 'Quakiez', 'Helvetica', 'Arial', 'sans-serif';
   --h1: 400%;
   --h2: 300%;
   --h3: 250%;
   --h4: 150%;
-  --body: 18px;
 
+  // sizing
+  --body: 18px;
+  --section-padding: 20px;
+  --border-radius: 16px;
+  --default-width: 768px;
 }

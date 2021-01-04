@@ -26,6 +26,9 @@ const navigation: { [key: string]: navLabel } = {
 };
 
 export const Config = {
+  size: {
+    backgroundMax: 1280
+  },
   navigation,
   url: {
     server: {    

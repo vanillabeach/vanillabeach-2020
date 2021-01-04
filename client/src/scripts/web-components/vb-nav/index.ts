@@ -12,11 +12,20 @@ export class Nav extends LitElement {
 
   static get styles() {
     return css`
+      :host section {
+        max-width: var(--default-width);
+        text-align: right;
+        display: block;
+        margin: auto;
+      }
+     
       :host span {
         display: inline-block;
         margin-right: 10px;
         padding-right: 10px;
-        border-right: 1px solid #fff;
+        border-right: 1px solid var(--background-color);
+        color: var(--background-color);
+        text-align: right;
       }
 
       :host span:last-of-type {

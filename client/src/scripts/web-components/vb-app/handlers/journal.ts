@@ -1,11 +1,11 @@
 import * as PubSub from 'pubsub-js';
 
-import { Journal } from '../../model/journal';
-import { JournalSummary } from '../../model/journalSummary';
-import { Config } from '../../config';
+import { Journal } from '../../../model/journal';
+import { JournalSummary } from '../../../model/journalSummary';
+import { Config } from '../../../config';
 
-export class AppFileHandler {
-  static async journalEntry(id = ''): Promise<Journal> {
+export class JournalHandler {
+  static async getJournal(id = ''): Promise<Journal> {
     const url = id === '' 
       ? Config.url.server.journal.entry
       : `${Config.url.server.journal.entry}?id=${id}`;
@@ -23,7 +23,7 @@ export class AppFileHandler {
     return result;
   }
 
-  static async journalList(): Promise<JournalSummary[]> {
+  static async getJournalList(): Promise<JournalSummary[]> {
     const url = Config.url.server.journal.list;
     let result: JournalSummary[] = null;
 

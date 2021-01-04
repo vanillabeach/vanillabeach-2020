@@ -1,6 +1,7 @@
 import { LitElement, PropertyValues, css, html } from 'lit-element';
 import * as PubSub from 'pubsub-js';
-import { AppFileHandler } from './handlers';
+import { JournalHandler } from './handlers/journal';
+import { Config } from '../../config';
 import { Journal } from '../../model/journal';
 import { JournalSummary } from '../../model/journalSummary';
 import { Signal } from './enums';
@@ -32,26 +33,18 @@ export class App extends LitElement {
   static get styles() {
     return css`
       :host .site {
-        max-width: 750px;
+        max-width: var(--default-width);
         margin: auto;
+        background-color: var(--background-color);
+        box-sizing: border-box;   
+        box-shadow: 1px 0px 30px var(--shadow-faint-color);
       }
     `;
   }
 
   private bindPubSubEvents() {
-    PubSub.subscribe(
-      Signal.JournalEntryRequest,
-      async (_: string, id?: string) => {
-        const journalEntry = await AppFileHandler.journalEntry(id);
-
-        this.state.pages.journal.entry = journalEntry;
-        this.state = { ...this.state };
-        this.broadcastState();
-      }
-    );
-
     PubSub.subscribe(Signal.JournalNavigationRequest, async () => {
-      const journalList = await AppFileHandler.journalList();
+      const journalList = await JournalHandler.getJournalList();
 
       this.state.pages.journal.navigation = journalList;
       this.state = { ...this.state };
@@ -60,12 +53,22 @@ export class App extends LitElement {
 
     PubSub.subscribe(
       Signal.UrlChange,
-      async (_: string, id?: PageUrl) => {
+      async (_: string, id: PageUrl) => {
         console.log('url change: ', id);
+        const navigation = Config.navigation;
+
+        if (id.name = navigation.journal.pageId) {
+          const journalId = id.param as string;
+          const journalEntry = await JournalHandler.getJournal(journalId);
+
+          this.state.pages.journal.entry = journalEntry;
+          this.state = { ...this.state };
+          this.broadcastState();
+        }
       }
     );
   }
-
+  
   private broadcastState() {
     PubSub.publish(Signal.AppSync, this.state);
   }

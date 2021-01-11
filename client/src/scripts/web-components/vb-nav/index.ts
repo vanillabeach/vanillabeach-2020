@@ -22,15 +22,19 @@ export class Nav extends LitElement {
       :host span {
         display: inline-block;
         margin-right: 10px;
-        padding-right: 10px;
-        border-right: 1px solid var(--background-color);
+        padding-left: 15px;
+        padding-right: 15px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        border: 1px solid var(--background-color);
+        border-bottom: solid var(--background-color);
         color: var(--background-color);
         text-align: right;
+        cursor: pointer;
+        outline: none;
       }
 
       :host span:last-of-type {
-        padding-right: 0;
-        border-right: 0;
         margin-right: 0;
       }
     `;

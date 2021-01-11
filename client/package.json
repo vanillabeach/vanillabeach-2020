@@ -11,6 +11,7 @@
   "author": "mwieth",
   "license": "MIT",
   "devDependencies": {
+    "@types/luxon": "^1.25.0",
     "@types/pubsub-js": "^1.8.1",
     "autoprefixer": "^8.6.0",
     "awesome-typescript-loader": "^5.2.0",
@@ -37,6 +38,7 @@
   },
   "dependencies": {
     "lit-element": "^2.4.0",
+    "luxon": "^1.25.0",
     "normalize.css": "^8.0.1"
   }
 }

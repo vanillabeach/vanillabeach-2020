@@ -1,43 +1,37 @@
 import * as PubSub from 'pubsub-js';
 import { LitElement, css, html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
-import { Journal } from '../../model/journal';
-import { Utils } from '../../utils';
-import { State } from '../vb-app/index';
-import { Signal } from '../vb-app/enums';
+import { DateTime } from 'luxon';
 import { Config } from '../../config';
+import { Journal } from '../../model/journal';
+import { Signal } from '../vb-app/enums';
+import { State } from '../vb-app/index';
 
 const renderEffects = false;
-const fadeDuration = 200;
+const fadeDuration = Config.style.fadeDuration;
 
 class JournalWebComponent extends LitElement {
   private content: string;
   private journal: Journal;
-  private atomicClass: string;
-  private scrollEvent = () => this.animateLettering();
 
   static get properties() {
     return {
-      atomicClass: { type: String },
       content: { type: String },
     };
   }
 
   constructor() {
     super();
-    this.atomicClass = 'atomic';
     this.content = '';
   }
 
   connectedCallback() {
     super.connectedCallback();
-    this.bindWindowEvents();
     this.bindPubSubEvents();
     this.getJournalEntry();
   }
 
   disconnectedCallback() {
-    this.unbindWindowEvents();
     this.unbindPubSubEvents();
   }
 
@@ -51,13 +45,11 @@ class JournalWebComponent extends LitElement {
 
   static get styles() {
     const journalOpacity = renderEffects ? css`var(--journalOpacity)` : css`1`;
-    const opacityTransition = css`
-      ${fadeDuration}ms
-    `;
 
     return css`
       :host {
         line-height: 1.5;
+        font-family: var(--body-font-family);
         font-size: var(--body);
         color: var(--body-text-color);
         text-shadow: var(--body-text-shadow);
@@ -79,7 +71,7 @@ class JournalWebComponent extends LitElement {
       }
 
       :host #journal {
-        transition: opacity ${opacityTransition} ease-in;
+        transition: opacity ${fadeDuration}ms ease-in;
         opacity: 0;
       }
 
@@ -110,6 +102,30 @@ class JournalWebComponent extends LitElement {
         padding: var(--section-padding);
       }
 
+      :host .journal-header {
+        -webkit-font-smoothing: antialiased;
+        font-family: var(--header-font-family);
+        text-align: center;
+        text-transform: uppercase;
+        padding-top: 20px;
+      }
+
+      :host .journal-header .journal-title {
+        color: var(--foreground-color);
+        font-weight: 100;
+      }
+
+      :host .journal-header h2,
+      :host .journal-header h4 {
+        line-height: 1;
+        padding: 0;
+        margin: 0;
+      }
+
+      :host .journal-header h4 {
+        padding-top: 10px;
+      }
+
       :host #journal-header-image {
         width: 100%;
         margin-top: 0;
@@ -117,7 +133,7 @@ class JournalWebComponent extends LitElement {
       }
 
       :host a {
-        color: var(--link-colour);
+        color: var(--link-color);
         font-size: var(--body) !important;
         text-decoration: none;
       }
@@ -129,10 +145,16 @@ class JournalWebComponent extends LitElement {
       return html`<section id="journal"></section>`;
     }
 
+    const journalDateTime = DateTime.fromMillis(Number(this.journal.date));
+    const date = journalDateTime.toFormat("hh:mm a · dd MMMM yyyy") ;
+    
     return html`
       <section id="journal">
         <div class="frame">
-          <h2 class="journal-title">${this.journal.title}</h2>
+          <header class="journal-header">
+            <h2 class="journal-title">${this.journal.title}</h2>
+            <h4>${date}</h4>
+          </header>
           <article id="journal-entry" class="journal-entry">
             <img id="journal-header-image" />
             <div class="journal-content">
@@ -142,18 +164,6 @@ class JournalWebComponent extends LitElement {
         </div>
       </section>
     `;
-  }
-
-  private animateLettering() {
-    const letters = this.shadowRoot.querySelectorAll('*[data-id="atom"]');
-    const threshold = window.pageYOffset + window.innerHeight;
-
-    letters.forEach((x: HTMLElement) => {
-      if (x.getBoundingClientRect().top >= threshold) {
-        return;
-      }
-      x.style.opacity = '1';
-    });
   }
 
   private bindPubSubEvents() {
@@ -166,10 +176,6 @@ class JournalWebComponent extends LitElement {
         this.setAttribute('content', this.journal.entry);
         this.init();
       });
-
-      // if (renderEffects) {
-      //   window.setTimeout(() => this.animateLettering(), 1000);
-      // }
     });
   }
 
@@ -177,11 +183,6 @@ class JournalWebComponent extends LitElement {
     PubSub.unsubscribe(Signal.AppSync);
   }
 
-  private bindWindowEvents() {
-    if (renderEffects) {
-      window.addEventListener('scroll', Utils.debounce(this.scrollEvent, 100));
-    }
-  }
 
   private init() {
     setTimeout(() => {
@@ -215,48 +216,6 @@ class JournalWebComponent extends LitElement {
       setTimeout(callback.bind(this), fadeDuration);
     }
   }
-
-  private unbindWindowEvents() {
-    window.removeEventListener('scroll', this.scrollEvent);
-  }
-
-  // private convertText(e: HTMLElement) {
-  //   if (e.hasChildNodes()) {
-  //     e.childNodes.forEach((child) => this.convertText(child as HTMLElement));
-  //     return;
-  //   }
-
-  //   const text = e.cloneNode().textContent;
-  //   const newNode = document.createElement('span');
-  //   newNode.innerHTML = this.textToSpan(text);
-  //   e.parentNode.insertBefore(newNode, e.nextSibling);
-  //   e.parentNode.removeChild(e);
-  // }
-
-  // private get renderedText(): string {
-  //   const el = document.createElement('article');
-
-  //   el.innerHTML = this.content;
-  //   el.normalize();
-  //   this.convertText(el);
-  //   return el.innerHTML;
-  // }
-  // private textToSpan(el: string): string {
-  //   const contentArray = el.split(' ');
-  //   const initialOpacity = renderEffects ? 0 : 1;
-  //   let accumulator = 0;
-
-  //   return contentArray
-  //     .map((x: string, index: number) => {
-  //       const latency = accumulator;
-  //       const speed = Math.random();
-  //       const style = `transition: ${speed}s ${latency}s ease-in; opacity: ${initialOpacity};`;
-
-  //       accumulator += Math.random() / 100;
-  //       return `<span data-id='atom' part='${this.atomicClass}' style='${style}'>${x} </span>`;
-  //     })
-  //     .join('');
-  // }
 
   private getJournalEntry() {
     PubSub.publish(Signal.JournalEntryRequest);

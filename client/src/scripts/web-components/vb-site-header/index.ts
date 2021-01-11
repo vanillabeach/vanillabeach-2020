@@ -10,7 +10,7 @@ export class SiteHeader extends LitElement {
     return css`
       :host {
           display: block;
-      }
+      }    
 
       :host .logo {
           background-color: var(--foreground-color);
@@ -18,10 +18,15 @@ export class SiteHeader extends LitElement {
           text-align: center;
       }
 
+      :host .scroll-container {
+        position: relative;
+        top: 0;
+      }
+
       :host .splash {
-          background: url('${backgroundUrl}/bg-header.png') bottom center no-repeat;
+          background: url('${backgroundUrl}/bg-header-wide.png') bottom center repeat-x;
           background-size: cover;
-          height: 200px;
+          height: ${Config.size.mainHeaderSplash}px;
           text-align: center;
       }
 
@@ -35,6 +40,7 @@ export class SiteHeader extends LitElement {
           line-height: 1;
           color: var(--background-color);
           text-shadow: 0px 3px 0px var(--foreground-color);
+          display: block;
       }
     `;
   }
@@ -43,9 +49,7 @@ export class SiteHeader extends LitElement {
   }
 
   private bindPubSubEvents() {
-    PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {
-
-    });
+    PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {});
   }
 
   private unbindEvents() {
@@ -73,8 +77,10 @@ export class SiteHeader extends LitElement {
   render() {
     return html`
       <section class="logo">
-        <h1><span>VANILLA</span><span>BEACH</span></h1>
-        <vb-nav></vb-nav>
+        <article id="scroll-container" class="scroll-container">
+          <h1 id="logo-text"><span>VANILLA</span><span>BEACH</span></h1>
+          <vb-nav></vb-nav>
+        </article>
       </section>
       <section class="splash"></section>    
     `;

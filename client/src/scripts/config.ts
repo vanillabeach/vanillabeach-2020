@@ -27,9 +27,13 @@ const navigation: { [key: string]: navLabel } = {
 
 export const Config = {
   size: {
-    backgroundMax: 1280
+    backgroundMax: 1280,
+    mainHeaderSplash: 200
   },
   navigation,
+  style: {
+    fadeDuration: 200,
+  },
   url: {
     server: {    
       backgrounds: `/resources/site/backgrounds`,

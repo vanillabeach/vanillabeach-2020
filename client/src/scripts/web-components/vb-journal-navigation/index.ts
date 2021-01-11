@@ -6,6 +6,8 @@ import { Navigation } from '../vb-app/navigation';
 import { State } from '../vb-app/index';
 import { Signal } from '../vb-app/enums';
 
+const fadeDuration = Config.style.fadeDuration;
+
 export class JournalNavigation extends LitElement {
   id: string;
   private journalList: JournalSummary[];
@@ -22,19 +24,37 @@ export class JournalNavigation extends LitElement {
   }
   static get styles() {
     return css`
-      :host .site {
+      :host {
         max-width: 750px;
         margin: auto;
       }
 
       :host a {
-        color: #ffff00;
+        display: inline-block;
+        margin-right: 10px;
+        margin-bottom: 20px;
+        padding-left: 15px;
+        padding-right: 15px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        border: 1px solid var(--foreground-color);
+        border-bottom: solid var(--foreground-color);
+        color: var(--foreground-color);
+        text-align: right;
+        cursor: pointer;
+        outline: none;
         text-decoration: none;
       }
 
-      :host .cell-container {
+      :host .journal-navigation {
+        transition: opacity ${fadeDuration}ms ease-in;
         display: flex;
         flex-direction: horizontal;
+        opacity: 0;
+      }
+
+      :host .journal-navigation.show {
+        opacity: 1;
       }
 
       :host .cell {
@@ -42,10 +62,12 @@ export class JournalNavigation extends LitElement {
       }
 
       :host .cell.first {
+        margin-left: 20px;
         text-align: left;
       }
 
       :host .cell.second {
+        margin-right: 10px;
         text-align: right;
       }
     `;
@@ -76,6 +98,7 @@ export class JournalNavigation extends LitElement {
       this.id = state.pages.journal.entry.id;
       this.journalList = [...state.pages.journal.navigation].reverse();
       this.getNavigationLinks();
+      this.fadeIn();
     });
   }
 
@@ -86,6 +109,11 @@ export class JournalNavigation extends LitElement {
     const target = el.target as HTMLElement;
     const journalId = target.getAttribute('data-value');
     Navigation.navigateTo(Config.navigation.journal.pageId, journalId);
+  }
+
+  private fadeIn() {
+    const navigationEl: HTMLElement = this.shadowRoot.querySelector('#journal-navigation');
+    navigationEl.classList.add('show');
   }
 
   private unbindEvents() {
@@ -158,7 +186,7 @@ export class JournalNavigation extends LitElement {
     </a>`;
 
     return html`
-      <div class="cell-container">
+      <div id="journal-navigation" class="journal-navigation">
         <div class="cell first">${previousJournal}</div>
         <div class="cell second">${nextJournal}</div>
       </div>

@@ -135,7 +135,11 @@ class JournalWebComponent extends LitElement {
       :host a {
         color: var(--link-color);
         font-size: var(--body) !important;
+        display: inline-block;
+        background-color: #00000011;
         text-decoration: none;
+        padding-left: 0.2em;
+        padding-right: 0.2em;
       }
     `;
   }

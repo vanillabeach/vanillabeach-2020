@@ -42,8 +42,6 @@ export class Background extends LitElement {
     const muralWidth = Math.min(window.innerWidth, Config.size.backgroundMax);
     const muralHeight = muralEl.offsetWidth * imageRatio;
 
-    console.log('parallax ratio', parallaxRatio)
-
     ctx.drawImage(
       this.backgroundImage,
       0,

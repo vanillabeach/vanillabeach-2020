@@ -95,10 +95,12 @@ export class JournalNavigation extends LitElement {
       if (!state.pages.journal.navigation || !state.pages.journal.entry) {
         return;
       }
-      this.id = state.pages.journal.entry.id;
-      this.journalList = [...state.pages.journal.navigation].reverse();
-      this.getNavigationLinks();
-      this.fadeIn();
+      this.fadeOut(() => {
+        this.id = state.pages.journal.entry.id;
+        this.journalList = [...state.pages.journal.navigation].reverse();
+        this.getNavigationLinks();
+        this.fadeIn();
+      });      
     });
   }
 
@@ -114,6 +116,12 @@ export class JournalNavigation extends LitElement {
   private fadeIn() {
     const navigationEl: HTMLElement = this.shadowRoot.querySelector('#journal-navigation');
     navigationEl.classList.add('show');
+  }
+
+  private fadeOut(callback: Function) {
+    const navigationEl: HTMLElement = this.shadowRoot.querySelector('#journal-navigation');
+    navigationEl.classList.remove('show');
+    setTimeout(callback.bind(this), fadeDuration * 2);
   }
 
   private unbindEvents() {

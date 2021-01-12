@@ -4,15 +4,15 @@ html {
   
   // colors and shadows
   --background-color: #fff;
-  --body-text-color: #222222;
   --body-text-shadow: 0px 1px 0px var(--background-color);
   --foreground-color: #000;
-  --link-color: #000088;
+  --body-text-color: #111;
+  --link-color: #000;
   --shadow-faint-color: #00000011;
 
   // fonts
   --header-font-family: 'Quakiez', 'Helvetica', 'Arial', 'sans-serif';
-  --body-font-family: 'Chivo', sans-serif;
+  --body-font-family: 'IBM Plex Sans', sans-serif;
   --h1: 400%;
   --h2: 300%;
   --h3: 250%;

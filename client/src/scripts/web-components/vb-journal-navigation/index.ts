@@ -169,21 +169,21 @@ export class JournalNavigation extends LitElement {
   }
 
   render() {
-    const previousJournal = html`<a
+    const previousJournal = this.previousJournalId ? html`<a
       href="#"
       data-id="previous-journal"
       data-value="${this.previousJournalId}"
     >
       ${this.previousJournalTitle ? `« ${this.previousJournalTitle}` : ''}
-    </a>`;
+    </a>` : html``;
 
-    const nextJournal = html`<a
+    const nextJournal = this.nextJournalId ? html`<a
       href="#"
       data-id="next-journal"
       data-value="${this.nextJournalId}"
     >
       ${this.nextJournalTitle ? `${this.nextJournalTitle} »` : ''}
-    </a>`;
+    </a>` : html``;
 
     return html`
       <div id="journal-navigation" class="journal-navigation">

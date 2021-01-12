@@ -33,7 +33,7 @@ export class Background extends LitElement {
 
     const muralEl: HTMLCanvasElement = this.shadowRoot.querySelector('#mural');
     const ctx = muralEl.getContext('2d');
-    const parallaxRatio = (muralEl.offsetHeight / window.innerHeight) * -1;
+    const parallaxRatio = window.innerHeight / document.body.offsetHeight;
     const imageRatio =
       this.foregroundImage.width < this.foregroundImage.height
         ? this.foregroundImage.height / this.foregroundImage.width
@@ -42,24 +42,26 @@ export class Background extends LitElement {
     const muralWidth = Math.min(window.innerWidth, Config.size.backgroundMax);
     const muralHeight = muralEl.offsetWidth * imageRatio;
 
+    console.log('parallax ratio', parallaxRatio)
+
     ctx.drawImage(
       this.backgroundImage,
       0,
-      window.scrollY * parallaxRatio * 0.55,
+      window.scrollY * parallaxRatio * -0.6,
       muralWidth,
       muralHeight
     );
     ctx.drawImage(
       this.maskImage,
       0,
-      window.scrollY * parallaxRatio * 0.65,
+      window.scrollY * parallaxRatio * -0.85,
       muralWidth,
       muralHeight
     );
     ctx.drawImage(
       this.foregroundImage,
       0,
-      window.scrollY * parallaxRatio * 0.75,
+      window.scrollY * parallaxRatio * -1,
       muralWidth,
       muralHeight
     );

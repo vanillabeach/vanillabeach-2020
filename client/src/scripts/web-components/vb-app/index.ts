@@ -54,17 +54,19 @@ export class App extends LitElement {
     PubSub.subscribe(
       Signal.UrlChange,
       async (_: string, id: PageUrl) => {
-        console.log('url change: ', id);
         const navigation = Config.navigation;
-
-        if (id.name = navigation.journal.pageId) {
+        if (id.name === navigation.journal.pageId) {
           const journalId = id.param as string;
           const journalEntry = await JournalHandler.getJournal(journalId);
-
+           
           this.state.pages.journal.entry = journalEntry;
           this.state = { ...this.state };
           this.broadcastState();
         }
+
+        console.log('subscribe', id);
+
+        this.switchPage(id.name);
       }
     );
   }
@@ -92,6 +94,19 @@ export class App extends LitElement {
   private init() {
     this.state = this.getInitialState();
     this.bindPubSubEvents();
+  }
+
+  private switchPage(pageId: string) {
+    console.log('switchPage', pageId);
+    const pages = [].slice.call(this.querySelectorAll('vb-page'));
+
+    pages.forEach((page: HTMLElement) => {
+      if (page.getAttribute('id') === pageId) {
+        page.classList.add('show');
+      } else {
+        page.classList.remove('show');
+      }
+    })
   }
 
   constructor() {

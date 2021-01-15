@@ -17,6 +17,10 @@ export class Page extends LitElement {
   static get styles() {
     return css`
       :host {
+        display: none;        
+      }
+
+      :host(.show) {
         display: block;
       }
 

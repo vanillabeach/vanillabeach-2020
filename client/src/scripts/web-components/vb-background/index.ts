@@ -49,13 +49,13 @@ export class Background extends LitElement {
       muralWidth,
       muralHeight
     );
-    ctx.drawImage(
-      this.maskImage,
-      0,
-      window.scrollY * parallaxRatio * -0.85,
-      muralWidth,
-      muralHeight
-    );
+    // ctx.drawImage(
+    //   this.maskImage,
+    //   0,
+    //   window.scrollY * parallaxRatio * -0.85,
+    //   muralWidth,
+    //   muralHeight
+    // );
     ctx.drawImage(
       this.foregroundImage,
       0,

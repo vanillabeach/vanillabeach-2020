@@ -34,6 +34,11 @@ export class Nav extends LitElement {
         outline: none;
       }
 
+      :host span a {
+        color: var(--background-color);
+        text-decoration: none;
+      }
+      
       :host span:last-of-type {
         margin-right: 0;
       }
@@ -45,7 +50,9 @@ export class Nav extends LitElement {
     const linkKeys = Object.keys(navigation);
 
     return linkKeys.map(
-      (key: string) => html`<span>${navigation[key].label}</span>`
+      (key: string) => html`
+        <span><a href="#${navigation[key].pageId}">${navigation[key].label}</a></span>
+        `
     );
   }
 

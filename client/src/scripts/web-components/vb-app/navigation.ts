@@ -7,9 +7,9 @@ export type PageUrlParam = {
 };
 
 export type PageUrl = {
-    name: string;
-    param: PageUrlParam[] | string;
-}
+  name: string;
+  param: PageUrlParam[] | string;
+};
 
 export class Navigation {
   private url: string;
@@ -23,12 +23,21 @@ export class Navigation {
     }
 
     this.url = currentUrl;
-    const name = currentHash.substring(1, currentHash.indexOf('/'));
-    const param = currentHash.substring(name.length + 2);
+    const name =
+      currentHash.indexOf('/') == -1
+        ? currentHash.substring(1)
+        : currentHash.substring(1, currentHash.indexOf('/'));
+
+    const param =
+      currentHash.indexOf('/') != -1
+        ? ''
+        : currentHash.substring(name.length + 2);
+
+    console.log('publish', name);
 
     PubSub.publish(Signal.UrlChange, {
-        name,
-        param 
+      name,
+      param,
     });
   }
 

@@ -8,7 +8,7 @@ interface navLabel {
 
 const navigation: { [key: string]: navLabel } = {
   journal: {
-    pageId: 'journal',
+    pageId: 'home',
     label: 'Journal',
   },
   photosAndVideos: {
@@ -30,6 +30,7 @@ export const Config = {
     backgroundMax: 1280,
     mainHeaderSplash: 200
   },
+  navigationDefault: 'home',
   navigation,
   style: {
     fadeDuration: 200,

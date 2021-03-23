@@ -4,4 +4,5 @@ import "./web-components/vb-journal";
 import "./web-components/vb-journal-navigation";
 import "./web-components/vb-nav";
 import "./web-components/vb-page";
+import "./web-components/vb-photos";
 import "./web-components/vb-site-header";

@@ -1,9 +1,11 @@
 import { LitElement, PropertyValues, css, html } from 'lit-element';
 import * as PubSub from 'pubsub-js';
 import { JournalHandler } from './handlers/journal';
+import { PhotoHandler } from './handlers/photo';
 import { Config } from '../../config';
 import { Journal } from '../../model/journal';
 import { JournalSummary } from '../../model/journalSummary';
+import { Photo } from '../../model/photo';
 import { Signal } from './enums';
 import { Navigation, PageUrl } from './navigation';
 
@@ -13,9 +15,14 @@ export type State = {
   },
   pages: {
     journal: {
-      entry: Journal;
-      navigation: JournalSummary[];
-    };
+      entry: Journal,
+      navigation: JournalSummary[]
+    },
+    photosAndVideos: {
+      photos: {
+        categoryPhotos: Photo[]
+      }
+    }
   };
 };
 
@@ -47,6 +54,13 @@ export class App extends LitElement {
       const journalList = await JournalHandler.getJournalList();
 
       this.state.pages.journal.navigation = journalList;
+      this.state = { ...this.state };
+      this.broadcastState();
+    });
+
+    PubSub.subscribe(Signal.CategoryPhotosRequest, async () => {
+      const categoryPhotos = await PhotoHandler.getCategoryPhotos();
+      this.state.pages.photosAndVideos.photos.categoryPhotos = categoryPhotos;
       this.state = { ...this.state };
       this.broadcastState();
     });
@@ -87,6 +101,11 @@ export class App extends LitElement {
           navigation: null,
           entry: null,
         },
+        photosAndVideos: {
+          photos: {
+            categoryPhotos: null
+          }
+        }
       },
     };
   }

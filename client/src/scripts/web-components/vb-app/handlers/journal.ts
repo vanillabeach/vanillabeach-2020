@@ -1,5 +1,3 @@
-import * as PubSub from 'pubsub-js';
-
 import { Journal } from '../../../model/journal';
 import { JournalSummary } from '../../../model/journalSummary';
 import { Config } from '../../../config';

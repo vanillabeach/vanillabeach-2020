@@ -28,7 +28,7 @@ const navigation: { [key: string]: navLabel } = {
 export const Config = {
   size: {
     backgroundMax: 1280,
-    mainHeaderSplash: 200
+    mainHeaderSplash: 200,
   },
   navigationDefault: 'home',
   navigation,
@@ -36,12 +36,16 @@ export const Config = {
     fadeDuration: 200,
   },
   url: {
-    server: {    
+    server: {
       backgrounds: `/resources/site/backgrounds`,
       journal: {
         entry: `${serverUrl}/journal`,
         list: `${serverUrl}/journals`,
-        media: `/resources/journal`,        
+        media: `/resources/journal`,
+      },
+      photo: {
+        categoryPhotos: `${serverUrl}/categoryPhotos`,
+        media: `/resources/photos`,
       },
     },
   },

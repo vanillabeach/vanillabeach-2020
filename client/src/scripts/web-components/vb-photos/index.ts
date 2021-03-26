@@ -1,7 +1,5 @@
 import * as PubSub from 'pubsub-js';
 import { LitElement, css, html } from 'lit-element';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
-import { DateTime } from 'luxon';
 import { Config } from '../../config';
 import { Photo } from '../../model/photo';
 import { Signal } from '../vb-app/enums';
@@ -123,11 +121,10 @@ class PhotosWebComponent extends LitElement {
   private bindPubSubEvents() {
     PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {
       const categoryPhotos = state.pages.photosAndVideos.photos.categoryPhotos;
-      const contentIds = categoryPhotos.map((photo: Photo) => photo.id);
-
       if (!categoryPhotos) {
         return;
       }
+      const contentIds = categoryPhotos.map((photo: Photo) => photo.id);
 
       this.fadeOut(() => {
         let photosById: { [key: string]: Photo } = {};

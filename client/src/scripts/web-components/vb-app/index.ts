@@ -11,18 +11,21 @@ import { Navigation, PageUrl } from './navigation';
 
 export type State = {
   intervalIds: {
-    navigation: number,
-  },
+    navigation: number;
+  };
   pages: {
     journal: {
-      entry: Journal,
-      navigation: JournalSummary[]
-    },
+      entry: Journal;
+      navigation: JournalSummary[];
+    };
     photosAndVideos: {
       photos: {
-        categoryPhotos: Photo[]
-      }
-    }
+        categoryPhotos: Photo[];
+      };
+    };
+  };
+  user: {
+    selectedPage: string;
   };
 };
 
@@ -43,7 +46,7 @@ export class App extends LitElement {
         max-width: var(--default-width);
         margin: auto;
         background-color: var(--background-color);
-        box-sizing: border-box;   
+        box-sizing: border-box;
         box-shadow: 1px 0px 30px var(--shadow-faint-color);
       }
     `;
@@ -65,26 +68,23 @@ export class App extends LitElement {
       this.broadcastState();
     });
 
-    PubSub.subscribe(
-      Signal.UrlChange,
-      async (_: string, id: PageUrl) => {
-        const navigation = Config.navigation;
-        if (id.name === navigation.journal.pageId) {
-          const journalId = id.param as string;
-          const journalEntry = await JournalHandler.getJournal(journalId);
-           
-          this.state.pages.journal.entry = journalEntry;
-          this.state = { ...this.state };
-          this.broadcastState();
-        }
+    PubSub.subscribe(Signal.UrlChange, async (_: string, id: PageUrl) => {
+      const navigation = Config.navigation;
+      const selectedPage = id.name;
 
-        console.log('subscribe', id);
-
-        this.switchPage(id.name);
+      this.state.user.selectedPage = selectedPage;
+      if (id.name === navigation.journal.pageId) {
+        const journalId = id.param as string;
+        const journalEntry = await JournalHandler.getJournal(journalId);
+        this.state.pages.journal.entry = journalEntry;
       }
-    );
+
+      this.switchPage(this.state.user.selectedPage);
+      this.state = { ...this.state };
+      this.broadcastState();
+    });
   }
-  
+
   private broadcastState() {
     PubSub.publish(Signal.AppSync, this.state);
   }
@@ -103,10 +103,13 @@ export class App extends LitElement {
         },
         photosAndVideos: {
           photos: {
-            categoryPhotos: null
-          }
-        }
+            categoryPhotos: null,
+          },
+        },
       },
+      user: {
+        selectedPage: null,
+      }
     };
   }
 
@@ -125,7 +128,7 @@ export class App extends LitElement {
       } else {
         page.classList.remove('show');
       }
-    })
+    });
   }
 
   constructor() {

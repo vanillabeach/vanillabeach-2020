@@ -1,5 +1,7 @@
 import { LitElement, css, html } from 'lit-element';
 import { Config } from '../../config';
+import { Signal } from '../vb-app/enums';
+import { State } from '../vb-app/index';
 
 export class Background extends LitElement {
   private backgroundImage: HTMLImageElement;
@@ -7,18 +9,39 @@ export class Background extends LitElement {
   private maskImage: HTMLImageElement;
   private canPaint: boolean;
 
+  static get properties() {
+    return {
+      pageId: {type: String},
+    }
+  }
+
   constructor() {
     super();
     this.canPaint = false;
+    this.setAttribute('pageId', Config.navigationDefault);
   }
 
   connectedCallback() {
     super.connectedCallback();
+    this.bindPubSubEvents();
     this.bindWindowEvents();
   }
 
   disconnectedCallback() {
+    this.unbindPubSubEvents();
     this.unbindWindowEvents();
+  }
+
+  private bindPubSubEvents() {
+    PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {
+      console.log('pageId', state.user.selectedPage);
+      this.setAttribute('pageId', state.user.selectedPage);
+      this.init();
+    });
+  }
+
+  private unbindPubSubEvents() {
+    PubSub.unsubscribe(Signal.AppSync);
   }
 
   private bindWindowEvents() {
@@ -49,13 +72,6 @@ export class Background extends LitElement {
       muralWidth,
       muralHeight
     );
-    // ctx.drawImage(
-    //   this.maskImage,
-    //   0,
-    //   window.scrollY * parallaxRatio * -0.85,
-    //   muralWidth,
-    //   muralHeight
-    // );
     ctx.drawImage(
       this.foregroundImage,
       0,
@@ -76,6 +92,7 @@ export class Background extends LitElement {
   }
 
   private init() {
+    const backgroundPath = `${Config.url.server.backgrounds}/${this.getAttribute('pageId')}`;
     const muralEl: HTMLCanvasElement = this.shadowRoot.querySelector('#mural');
     function checkBackgroundsHaveLoaded() {
       if (this.backgroundImage.width > 0 && 
@@ -93,9 +110,9 @@ export class Background extends LitElement {
     this.backgroundImage = new Image();
     this.foregroundImage = new Image();
     this.maskImage = new Image();
-    this.backgroundImage.src = `${Config.url.server.backgrounds}/bg-landing.png`;
-    this.foregroundImage.src = `${Config.url.server.backgrounds}/bg-mask-white.png`;
-    this.maskImage.src = `${Config.url.server.backgrounds}/bg-center-white.png`;
+    this.backgroundImage.src = `${backgroundPath}/background.png`;
+    this.foregroundImage.src = `${backgroundPath}/foreground.png`;
+    this.maskImage.src = `${backgroundPath}/mask.png`;
     this.backgroundImage.onload = checkBackgroundsHaveLoaded.bind(this);
     this.foregroundImage.onload = checkBackgroundsHaveLoaded.bind(this);
     this.maskImage.onload = checkBackgroundsHaveLoaded.bind(this);

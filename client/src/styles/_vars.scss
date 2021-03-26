@@ -3,9 +3,11 @@ html {
   --journalOpacity: 1;
   
   // colors and shadows
-  --background-color: #fff;
-  --body-text-shadow: 0px 1px 0px var(--background-color);
-  --foreground-color: #000;
+  --body-background-color-light: #fff;
+  --body-background-color-dark: #000;
+  --content-background-color: #fff;
+  --content-foreground-color: #000;
+  --body-text-shadow: 0px 1px 0px var(--content-background-color);
   --body-text-color: #111;
   --link-color: #000;
   --shadow-faint-color: #00000011;
@@ -24,3 +26,4 @@ html {
   --border-radius: 16px;
   --default-width: 768px;
 }
+

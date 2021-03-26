@@ -37,9 +37,9 @@ export class JournalNavigation extends LitElement {
         padding-right: 15px;
         padding-top: 5px;
         padding-bottom: 5px;
-        border: 1px solid var(--foreground-color);
-        border-bottom: solid var(--foreground-color);
-        color: var(--foreground-color);
+        border: 1px solid var(--content-foreground-color);
+        border-bottom: solid var(--content-foreground-color);
+        color: var(--content-foreground-color);
         text-align: right;
         cursor: pointer;
         outline: none;

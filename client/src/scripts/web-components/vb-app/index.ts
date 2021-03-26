@@ -45,7 +45,7 @@ export class App extends LitElement {
       :host .site {
         max-width: var(--default-width);
         margin: auto;
-        background-color: var(--background-color);
+        background-color: var(--content-background-color);
         box-sizing: border-box;
         box-shadow: 1px 0px 30px var(--shadow-faint-color);
       }

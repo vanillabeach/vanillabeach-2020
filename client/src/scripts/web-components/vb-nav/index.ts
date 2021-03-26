@@ -26,16 +26,16 @@ export class Nav extends LitElement {
         padding-right: 15px;
         padding-top: 5px;
         padding-bottom: 5px;
-        border: 1px solid var(--background-color);
-        border-bottom: solid var(--background-color);
-        color: var(--background-color);
+        border: 1px solid var(--content-background-color);
+        border-bottom: solid var(--content-background-color);
+        color: var(--content-background-color);
         text-align: right;
         cursor: pointer;
         outline: none;
       }
 
       :host span a {
-        color: var(--background-color);
+        color: var(--content-background-color);
         text-decoration: none;
       }
       

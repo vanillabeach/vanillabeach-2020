@@ -13,7 +13,7 @@ export class SiteHeader extends LitElement {
       }    
 
       :host .logo {
-          background-color: var(--foreground-color);
+          background-color: var(--content-foreground-color);
           height: 100px;
           text-align: center;
       }
@@ -38,8 +38,8 @@ export class SiteHeader extends LitElement {
           padding: 0;
           padding-top: 20px;
           line-height: 1;
-          color: var(--background-color);
-          text-shadow: 0px 3px 0px var(--foreground-color);
+          color: var(--content-background-color);
+          text-shadow: 0px 3px 0px var(--content-foreground-color);
           display: block;
       }
     `;

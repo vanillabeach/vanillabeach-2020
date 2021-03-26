@@ -11,8 +11,8 @@ export class Background extends LitElement {
 
   static get properties() {
     return {
-      pageId: {type: String},
-    }
+      pageId: { type: String },
+    };
   }
 
   constructor() {
@@ -81,6 +81,53 @@ export class Background extends LitElement {
     );
   }
 
+  private renderBackground() {
+    const pageId = this.getAttribute('pageId');
+    const backgroundPath = `${Config.url.server.backgrounds}/${pageId}`;
+    const muralEl: HTMLCanvasElement = this.shadowRoot.querySelector('#mural');
+    function checkBackgroundsHaveLoaded() {
+      if (
+        this.backgroundImage.width > 0 &&
+        this.foregroundImage.width > 0 &&
+        this.maskImage.width > 0
+      ) {
+        this.canPaint = true;
+        this.resizeMural();
+        setTimeout(() => muralEl.classList.add('show'), 500);
+      }
+    }
+
+    muralEl.classList.remove('show');
+
+    this.canPaint = false;
+    this.backgroundImage = new Image();
+    this.foregroundImage = new Image();
+    this.maskImage = new Image();
+    this.backgroundImage.src = `${backgroundPath}/background.png`;
+    this.foregroundImage.src = `${backgroundPath}/foreground.png`;
+    this.maskImage.src = `${backgroundPath}/mask.png`;
+    this.backgroundImage.onload = checkBackgroundsHaveLoaded.bind(this);
+    this.foregroundImage.onload = checkBackgroundsHaveLoaded.bind(this);
+    this.maskImage.onload = checkBackgroundsHaveLoaded.bind(this);
+  }
+
+  private setBackgroundColor() {
+    const baseColorEl:HTMLElement = this.shadowRoot.querySelector('#base-color');
+    const pageId = this.getAttribute('pageId');
+    const pageKeys = Object.keys(Config.navigation);
+    const selectedPage = pageKeys.filter(
+      (page: string) => Config.navigation[page].pageId === pageId
+    ).join();
+
+    console.log('selectedPage', selectedPage, Config.navigation[selectedPage]?.hasBrightBackground);
+
+    if (Config.navigation[selectedPage]?.hasBrightBackground === true) {
+      baseColorEl.classList.remove('dark-background');
+    } else {
+      baseColorEl.classList.add('dark-background');
+    }
+  }
+
   private resizeMural() {
     const muralEl: HTMLElement = this.shadowRoot.querySelector('#mural');
     const width = Math.min(window.innerWidth, Config.size.backgroundMax);
@@ -92,30 +139,8 @@ export class Background extends LitElement {
   }
 
   private init() {
-    const backgroundPath = `${Config.url.server.backgrounds}/${this.getAttribute('pageId')}`;
-    const muralEl: HTMLCanvasElement = this.shadowRoot.querySelector('#mural');
-    function checkBackgroundsHaveLoaded() {
-      if (this.backgroundImage.width > 0 && 
-          this.foregroundImage.width > 0 && 
-          this.maskImage.width > 0) {
-        this.canPaint = true;
-        this.resizeMural();
-        setTimeout(() => muralEl.classList.add('show'), 500);
-      }
-    }
-
-    muralEl.classList.remove('show');
-    
-    this.canPaint = false;
-    this.backgroundImage = new Image();
-    this.foregroundImage = new Image();
-    this.maskImage = new Image();
-    this.backgroundImage.src = `${backgroundPath}/background.png`;
-    this.foregroundImage.src = `${backgroundPath}/foreground.png`;
-    this.maskImage.src = `${backgroundPath}/mask.png`;
-    this.backgroundImage.onload = checkBackgroundsHaveLoaded.bind(this);
-    this.foregroundImage.onload = checkBackgroundsHaveLoaded.bind(this);
-    this.maskImage.onload = checkBackgroundsHaveLoaded.bind(this);
+    this.setBackgroundColor();
+    this.renderBackground();
   }
 
   updated() {
@@ -140,8 +165,19 @@ export class Background extends LitElement {
         opacity: 1;
       }
 
-      :host  #mural {
-        box-sizing: border-box;     
+      :host .base-color {
+        width: 100%;
+        height: 100%;
+        transition: background-color 200ms ease-in;
+        background-color: var(--body-background-color-light);
+      }
+
+      :host .base-color.dark-background {
+        background-color: var(--body-background-color-dark);
+      }
+
+      :host #mural {
+        box-sizing: border-box;
         transition: opacity 0.2s ease-in;
         max-width: ${Config.size.backgroundMax};
         display: block;
@@ -156,7 +192,11 @@ export class Background extends LitElement {
   }
 
   render() {
-    return html`<canvas id="mural" class="mural"></canvas>`;
+    return html`
+      <div class="base-color" id="base-color">
+        <canvas id="mural" class="mural"></canvas>
+      </div>
+    `;
   }
 }
 customElements.define('vb-background', Background);

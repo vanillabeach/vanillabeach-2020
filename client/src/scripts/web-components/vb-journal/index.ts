@@ -111,7 +111,7 @@ class JournalWebComponent extends LitElement {
       }
 
       :host .journal-header .journal-title {
-        color: var(--foreground-color);
+        color: var(--content-foreground-color);
         font-weight: 100;
       }
 

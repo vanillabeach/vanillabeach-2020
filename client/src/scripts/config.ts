@@ -4,24 +4,30 @@ interface navLabel {
   pageId: string;
   label: string;
   needsLogin?: true;
+  hasBrightBackground: boolean;
 }
 
 const navigation: { [key: string]: navLabel } = {
   journal: {
-    pageId: 'home',
+    pageId: 'journal',
     label: 'Journal',
+    hasBrightBackground: true,
   },
   photosAndVideos: {
     pageId: 'photos-and-videos',
     label: 'Photos & Videos',
+    hasBrightBackground: false,
+
   },
   magazine: {
     pageId: 'magazine',
     label: 'Magazine',
+    hasBrightBackground: false,
   },
   junk: {
     pageId: 'junk',
     label: 'Junk',
+    hasBrightBackground: false,
   },
 };
 
@@ -30,7 +36,7 @@ export const Config = {
     backgroundMax: 1280,
     mainHeaderSplash: 200,
   },
-  navigationDefault: 'home',
+  navigationDefault: 'journal',
   navigation,
   style: {
     fadeDuration: 200,

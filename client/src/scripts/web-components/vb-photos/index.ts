@@ -11,11 +11,12 @@ const renderEffects = false;
 const fadeDuration = Config.style.fadeDuration;
 
 class PhotosWebComponent extends LitElement {
-  private categoryPhotos: Photo[];
+  private photoIds: string;
+  private photosById: { [key: string]: Photo };
 
   static get properties() {
     return {
-      content: { type: String },
+      photoIds: { type: String },
     };
   }
 
@@ -77,6 +78,14 @@ class PhotosWebComponent extends LitElement {
         opacity: 1;
       }
 
+      :host #photos .category {
+        width: 300px;
+        height: 200px;
+        border: 1px solid black;
+        background-size: cover;
+        background-position: center center;
+      }
+
       :host a {
         color: var(--link-color);
         font-size: var(--body) !important;
@@ -90,16 +99,22 @@ class PhotosWebComponent extends LitElement {
   }
 
   render() {
-    console.log('this.categoryPhotos', this.categoryPhotos);
+    console.log('this.photoIds', this.photoIds);
 
-    if (!this.categoryPhotos) {
+    if (this.photoIds === undefined) {
       return html`<section id="photos">TBC</section>`;
     }
 
+    const photoIds = JSON.parse(this.photoIds);
     return html`
       <section id="photos">
         <div class="frame">
-          <h1>Photos</h1>
+          <h3>Photos</h3>
+          ${photoIds.map((key: string) => {
+            const { category, id } = this.photosById[key];
+            const url = this.getPhotoPath(category, id);
+            return html`<vb-photo-category url="${url}"></vb-photo-category>`;
+          })}
         </div>
       </section>
     `;
@@ -108,15 +123,19 @@ class PhotosWebComponent extends LitElement {
   private bindPubSubEvents() {
     PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {
       const categoryPhotos = state.pages.photosAndVideos.photos.categoryPhotos;
+      const contentIds = categoryPhotos.map((photo: Photo) => photo.id);
 
       if (!categoryPhotos) {
         return;
       }
 
-      console.log('photos state', state);
-
       this.fadeOut(() => {
-        this.categoryPhotos = [...categoryPhotos];
+        let photosById: { [key: string]: Photo } = {};
+        categoryPhotos.forEach((photo: Photo) => {
+          photosById[photo.id] = photo;
+        });
+        this.photosById = photosById;
+        this.setAttribute('photoIds', JSON.stringify(contentIds));
         this.init();
       });
     });
@@ -151,8 +170,9 @@ class PhotosWebComponent extends LitElement {
   }
 
   private getPhotoPath(category: string, id: string): string {
-    const photoId = `${id}/XL_${id}.png`;
-    return `${Config.url.server.photo.media}/${category}/${photoId}`;
+    const photoId = `${id}/S_${id}.png`;
+    const path = `${Config.url.server.photo.media}/${category}/${photoId}`;
+    return encodeURI(path);
   }
 }
 

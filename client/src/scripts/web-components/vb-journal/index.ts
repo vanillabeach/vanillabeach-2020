@@ -175,11 +175,11 @@ class JournalWebComponent extends LitElement {
       if (!state.pages.journal.entry) {
         return;
       }
-      this.fadeOut(() => {
+      //this.fadeOut(() => {
         this.journal = state.pages.journal.entry;
         this.setAttribute('content', this.journal.entry);
         this.init();
-      });
+      //});
     });
   }
 

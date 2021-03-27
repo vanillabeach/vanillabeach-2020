@@ -3,6 +3,8 @@ import { Config } from '../../config';
 import { Signal } from '../vb-app/enums';
 import { State } from '../vb-app/index';
 
+const fadeDuration = Config.style.fadeDuration;
+
 export class Background extends LitElement {
   private backgroundImage: HTMLImageElement;
   private foregroundImage: HTMLImageElement;
@@ -34,10 +36,31 @@ export class Background extends LitElement {
 
   private bindPubSubEvents() {
     PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {
-      console.log('pageId', state.user.selectedPage);
-      this.setAttribute('pageId', state.user.selectedPage);
-      this.init();
+      if (state.user.selectedPage !== this.getAttribute('pageId')) {
+        this.fadeOut(() => {
+          this.setAttribute('pageId', state.user.selectedPage);
+          this.init();
+        });
+      }
     });
+  }
+
+  private fadeIn(callback?: Function) {
+    console.log('fade in...');
+    const muralEl: HTMLCanvasElement = this.shadowRoot.querySelector('#mural');
+    muralEl.classList.add('show');
+    if (callback) { 
+      setTimeout(callback, fadeDuration);
+    }
+  }
+
+  private fadeOut(callback?: Function) {
+    console.log('fade out...');
+    const muralEl: HTMLCanvasElement = this.shadowRoot.querySelector('#mural');
+    muralEl.classList.remove('show');
+    if (callback) { 
+      setTimeout(callback, fadeDuration);
+    }
   }
 
   private unbindPubSubEvents() {
@@ -84,8 +107,9 @@ export class Background extends LitElement {
   private renderBackground() {
     const pageId = this.getAttribute('pageId');
     const backgroundPath = `${Config.url.server.backgrounds}/${pageId}`;
-    const muralEl: HTMLCanvasElement = this.shadowRoot.querySelector('#mural');
+    const startTime = new Date().getTime();
     function checkBackgroundsHaveLoaded() {
+      const timeDelta = new Date().getTime() - startTime;
       if (
         this.backgroundImage.width > 0 &&
         this.foregroundImage.width > 0 &&
@@ -93,11 +117,10 @@ export class Background extends LitElement {
       ) {
         this.canPaint = true;
         this.resizeMural();
-        setTimeout(() => muralEl.classList.add('show'), 500);
+        const interval = Math.max(fadeDuration, timeDelta);
+        setTimeout(this.fadeIn.bind(this), interval);
       }
     }
-
-    muralEl.classList.remove('show');
 
     this.canPaint = false;
     this.backgroundImage = new Image();
@@ -168,7 +191,7 @@ export class Background extends LitElement {
       :host .base-color {
         width: 100%;
         height: 100%;
-        transition: background-color 200ms ease-in;
+        transition: background-color ${fadeDuration}ms ease-in;
         background-color: var(--body-background-color-light);
       }
 
@@ -178,7 +201,7 @@ export class Background extends LitElement {
 
       :host #mural {
         box-sizing: border-box;
-        transition: opacity 0.2s ease-in;
+        transition: opacity ${fadeDuration}ms ease-in;
         max-width: ${Config.size.backgroundMax};
         display: block;
         margin: auto;

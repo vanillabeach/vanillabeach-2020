@@ -9,6 +9,8 @@ import { Photo } from '../../model/photo';
 import { Signal } from './enums';
 import { Navigation, PageUrl } from './navigation';
 
+const fadeDuration = Config.style.fadeDuration;
+
 export type State = {
   intervalIds: {
     navigation: number;
@@ -124,7 +126,9 @@ export class App extends LitElement {
 
     pages.forEach((page: HTMLElement) => {
       if (page.getAttribute('id') === pageId) {
-        page.classList.add('show');
+        setTimeout(() => {
+          page.classList.add('show');
+        }, fadeDuration);
       } else {
         page.classList.remove('show');
       }

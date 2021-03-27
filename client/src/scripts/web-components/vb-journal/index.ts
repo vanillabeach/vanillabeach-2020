@@ -204,7 +204,7 @@ class JournalWebComponent extends LitElement {
         this.fadeIn();
       }
       journalHeaderImageEl.src = this.journalImagePath;
-    }, 50);
+    }, fadeDuration);
   }
 
   private fadeIn() {

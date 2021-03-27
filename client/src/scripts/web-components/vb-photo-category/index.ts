@@ -23,8 +23,9 @@ export class PhotoCategoryWebComponent extends LitElement {
   static get styles() {
     return css`
       .photo-category {
-        width: 300px;
-        height: 200px;
+        width: 100%;
+        height: 100%;
+        display: block;
         position: relative;
         outline: none;
         cursor: pointer;
@@ -44,11 +45,14 @@ export class PhotoCategoryWebComponent extends LitElement {
 
       :host .foreground {
         z-index: 1;
-        border: 1px solid black;
+        border: 1px solid;
+        border-bottom: 5px solid;
+        border-color: var(--content-foreground-color-translucent);
+        box-sizing: border-box;
       }
 
       :host .background {
-        z-index: 1;
+        z-index: 0;
         background-size: cover;
         filter: blur(3px);
         transform: scale(1.1);

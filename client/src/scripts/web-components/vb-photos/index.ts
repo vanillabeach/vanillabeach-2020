@@ -67,6 +67,30 @@ class PhotosWebComponent extends LitElement {
         font-size: var(--h4);
       }
 
+      :host .photo-categories {
+        display: flex;
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      :host .photo-category {
+        flex: 1;
+        height: 200px;
+        box-sizing: border-box;
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-bottom: 20px;
+      }
+
+      :host .photo-category:first-of-type {
+        padding-left: 0px;
+      }
+
+      :host .photo-category:last-of-type {
+        padding-right: 0px;
+      }
+
+
       :host #photos {
         transition: opacity ${fadeDuration}ms ease-in;
         opacity: 0;
@@ -97,25 +121,44 @@ class PhotosWebComponent extends LitElement {
   }
 
   render() {
-    console.log('this.photoIds', this.photoIds);
-
     if (this.photoIds === undefined) {
       return html`<section id="photos">TBC</section>`;
     }
 
     const photoIds = JSON.parse(this.photoIds);
+    const numberOfColumns = 2;
+    const photoIdsByRow:string[][] = [];
+    let accumulator:string[] = [];    
+
+    photoIds.forEach((id: string, index: number) => {
+      if (index !== 0 && index % numberOfColumns === 0) {
+        photoIdsByRow.push(accumulator);
+        accumulator = [id];
+      } else {
+        accumulator.push(id);
+      }
+    });
+    
     return html`
       <section id="photos">
         <div class="frame">
-          <h3>Photos</h3>
-          ${photoIds.map((key: string) => {
-            const { category, id } = this.photosById[key];
-            const url = this.getPhotoPath(category, id);
-            return html`<vb-photo-category url="${url}"></vb-photo-category>`;
-          })}
-        </div>
-      </section>
-    `;
+          <h3>Photos</h3>     
+          ${photoIdsByRow.map((photos: string[], rowIndex:number) => {
+            console.log('photos', photos);
+            return html`
+              <div class="photo-categories"> 
+                ${photos.map((key: string, index:number) => {
+                  const { category, id } = this.photosById[key];
+                  const url = this.getPhotoPath(category, id);
+                  return html`
+                    <div class="photo-category">
+                      <vb-photo-category url="${url}"></vb-photo-category>
+                    </div>`;
+                })}
+              </div>
+            `;
+          })}                                    
+      </section>`;
   }
 
   private bindPubSubEvents() {

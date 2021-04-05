@@ -15,11 +15,12 @@ export class PhotoCategoryWebComponent extends LitElement {
 
   static get properties() {
     return {
-      name: {type: String},
-      url: {type: String},
-      href: {type: String},
+      name: { type: String },
+      url: { type: String },
+      href: { type: String },
     };
   }
+
   static get styles() {
     return css`
       .photo-category {
@@ -45,18 +46,60 @@ export class PhotoCategoryWebComponent extends LitElement {
 
       :host .foreground {
         z-index: 1;
-        border: 1px solid;
-        border-bottom: 5px solid;
-        border-color: var(--content-foreground-color-translucent);
+        // border: 1px solid;
+        // border-bottom: 5px solid;
+        // border-color: var(--content-foreground-color-translucent);
+        box-sizing: border-box;
+        vertical-align: baseline;
+      }
+
+      :host .foreground .name {
+        position: absolute;
+        bottom: 0px;
+        width: 100%;
+        height: 33%;
+        background-color: var(--content-foreground-color-light-translucent);
+        padding: calc(var(--section-padding) / 2);
         box-sizing: border-box;
       }
 
       :host .background {
         z-index: 0;
         background-size: cover;
-        filter: blur(3px);
+        filter: blur(2px);
         transform: scale(1.1);
       }
+
+      :host h3 {
+        font-family: var(--header-font-family);
+        line-height: 1;
+        text-transform: uppercase;
+      }
+    `;
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.unbindEvents();
+  }
+
+  updated() {
+    this.bindEvents();
+  }
+
+  render() {
+    return html`
+      <div id="photo-category" class="photo-category">
+        <div class="foreground">
+          <div class="name">
+            <h3>${this.name}</h3>
+          </div>
+        </div>
+        <div
+          class="background"
+          style="background-image: url(${this.url})"
+        ></div>
+      </div>
     `;
   }
 
@@ -80,26 +123,7 @@ export class PhotoCategoryWebComponent extends LitElement {
     }
   }
 
-  private viewPhoto() {
-
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    this.unbindEvents();
-  }
-
-  updated() {
-    this.bindEvents();
-  }
-
-  render() {
-    return html`
-      <div id="photo-category" class="photo-category">
-        <div class="foreground">${this.name}</div>
-        <div class="background" style="background-image: url(${this.url})"></div>
-      </div>
-    `;
-  }
+  private viewPhoto() {}
 }
+
 customElements.define('vb-photo-category', PhotoCategoryWebComponent);

@@ -32,7 +32,12 @@ export type State = {
 };
 
 export class App extends LitElement {
-  state: State;
+  private state: State;
+
+  constructor() {
+    super();
+    this.init();
+  }
 
   static get properties() {
     return {
@@ -51,6 +56,23 @@ export class App extends LitElement {
         box-sizing: border-box;
         box-shadow: 1px 0px 30px var(--shadow-faint-color);
       }
+    `;
+  }
+
+  updated(changedProperties: PropertyValues) {
+    console.log('state', this.state);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+  }
+
+  render() {
+    return html`
+      <vb-background class="background"></vb-background>
+      <section class="site">
+        <slot></slot>
+      </section>
     `;
   }
 
@@ -111,7 +133,7 @@ export class App extends LitElement {
       },
       user: {
         selectedPage: null,
-      }
+      },
     };
   }
 
@@ -134,27 +156,6 @@ export class App extends LitElement {
       }
     });
   }
-
-  constructor() {
-    super();
-    this.init();
-  }
-
-  updated(changedProperties: PropertyValues) {
-    console.log('state', this.state);
-  }
-
-  connectedCallback() {
-    super.connectedCallback();
-  }
-
-  render() {
-    return html`
-      <vb-background class="background"></vb-background>
-      <section class="site">
-        <slot></slot>
-      </section>
-    `;
-  }
 }
+
 customElements.define('vb-app', App);

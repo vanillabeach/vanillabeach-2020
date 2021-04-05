@@ -6,10 +6,6 @@ export class Nav extends LitElement {
     super();
   }
 
-  connectedCallback() {
-    super.connectedCallback();
-  }
-
   static get styles() {
     return css`
       :host section {
@@ -18,7 +14,7 @@ export class Nav extends LitElement {
         display: block;
         margin: auto;
       }
-     
+
       :host span {
         display: inline-block;
         margin-right: 10px;
@@ -38,11 +34,19 @@ export class Nav extends LitElement {
         color: var(--content-background-color);
         text-decoration: none;
       }
-      
+
       :host span:last-of-type {
         margin-right: 0;
       }
     `;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+  }
+
+  render() {
+    return html`<section>${this.links}</section>`;
   }
 
   private get links(): TemplateResult[] {
@@ -51,13 +55,14 @@ export class Nav extends LitElement {
 
     return linkKeys.map(
       (key: string) => html`
-        <span><a href="#${navigation[key].pageId}">${navigation[key].label}</a></span>
-        `
+        <span
+          ><a href="#${navigation[key].pageId}"
+            >${navigation[key].label}</a
+          ></span
+        >
+      `
     );
   }
-
-  render() {
-    return html`<section>${this.links}</section>`;
-  }
 }
+
 customElements.define('vb-nav', Nav);

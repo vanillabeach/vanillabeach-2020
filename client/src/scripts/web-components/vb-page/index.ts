@@ -10,14 +10,10 @@ export class Page extends LitElement {
     super();
   }
 
-  private bindPubSubEvents() {
-    PubSub.subscribe(Signal.AppSync, this.fadeIn.bind(this));
-  }
-
   static get styles() {
     return css`
       :host {
-        display: none;        
+        display: none;
       }
 
       :host(.show) {
@@ -35,15 +31,6 @@ export class Page extends LitElement {
     `;
   }
 
-  private fadeIn() {
-    console.log('vb-page fade in');
-    const pageEl: HTMLElement = this.shadowRoot.querySelector(
-      '#page-container'
-    );
-
-    pageEl.classList.add('show');
-  }
-
   connectedCallback() {
     super.connectedCallback();
     this.bindPubSubEvents();
@@ -56,5 +43,19 @@ export class Page extends LitElement {
       </section>
     `;
   }
+
+  private bindPubSubEvents() {
+    PubSub.subscribe(Signal.AppSync, this.fadeIn.bind(this));
+  }
+
+  private fadeIn() {
+    console.log('vb-page fade in');
+    const pageEl: HTMLElement = this.shadowRoot.querySelector(
+      '#page-container'
+    );
+
+    pageEl.classList.add('show');
+  }
 }
+
 customElements.define('vb-page', Page);

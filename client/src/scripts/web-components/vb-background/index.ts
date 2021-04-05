@@ -11,16 +11,16 @@ export class Background extends LitElement {
   private maskImage: HTMLImageElement;
   private canPaint: boolean;
 
-  static get properties() {
-    return {
-      pageId: { type: String },
-    };
-  }
-
   constructor() {
     super();
     this.canPaint = false;
     this.setAttribute('pageId', Config.navigationDefault);
+  }
+
+  static get properties() {
+    return {
+      pageId: { type: String },
+    };
   }
 
   connectedCallback() {
@@ -32,6 +32,57 @@ export class Background extends LitElement {
   disconnectedCallback() {
     this.unbindPubSubEvents();
     this.unbindWindowEvents();
+  }
+
+  static get styles() {
+    return css`
+      :host {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: -100;
+        overflow: hidden;
+        opacity: 1;
+      }
+
+      :host .base-color {
+        width: 100%;
+        height: 100%;
+        transition: background-color ${fadeDuration}ms ease-in;
+        background-color: var(--body-background-color-light);
+      }
+
+      :host .base-color.dark-background {
+        background-color: var(--body-background-color-dark);
+      }
+
+      :host #mural {
+        box-sizing: border-box;
+        transition: opacity ${fadeDuration}ms ease-in;
+        max-width: ${Config.size.backgroundMax};
+        display: block;
+        margin: auto;
+        opacity: 0;
+      }
+
+      :host #mural.show {
+        opacity: 1;
+      }
+    `;
+  }
+
+  render() {
+    return html`
+      <div class="base-color" id="base-color">
+        <canvas id="mural" class="mural"></canvas>
+      </div>
+    `;
+  }
+
+  updated() {
+    this.init();
   }
 
   private bindPubSubEvents() {
@@ -49,7 +100,7 @@ export class Background extends LitElement {
     console.log('fade in...');
     const muralEl: HTMLCanvasElement = this.shadowRoot.querySelector('#mural');
     muralEl.classList.add('show');
-    if (callback) { 
+    if (callback) {
       setTimeout(callback, fadeDuration);
     }
   }
@@ -58,7 +109,7 @@ export class Background extends LitElement {
     console.log('fade out...');
     const muralEl: HTMLCanvasElement = this.shadowRoot.querySelector('#mural');
     muralEl.classList.remove('show');
-    if (callback) { 
+    if (callback) {
       setTimeout(callback, fadeDuration);
     }
   }
@@ -135,14 +186,20 @@ export class Background extends LitElement {
   }
 
   private setBackgroundColor() {
-    const baseColorEl:HTMLElement = this.shadowRoot.querySelector('#base-color');
+    const baseColorEl: HTMLElement = this.shadowRoot.querySelector(
+      '#base-color'
+    );
     const pageId = this.getAttribute('pageId');
     const pageKeys = Object.keys(Config.navigation);
-    const selectedPage = pageKeys.filter(
-      (page: string) => Config.navigation[page].pageId === pageId
-    ).join();
+    const selectedPage = pageKeys
+      .filter((page: string) => Config.navigation[page].pageId === pageId)
+      .join();
 
-    console.log('selectedPage', selectedPage, Config.navigation[selectedPage]?.hasBrightBackground);
+    console.log(
+      'selectedPage',
+      selectedPage,
+      Config.navigation[selectedPage]?.hasBrightBackground
+    );
 
     if (Config.navigation[selectedPage]?.hasBrightBackground === true) {
       baseColorEl.classList.remove('dark-background');
@@ -166,60 +223,10 @@ export class Background extends LitElement {
     this.renderBackground();
   }
 
-  updated() {
-    this.init();
-  }
-
   private unbindWindowEvents() {
     window.removeEventListener('scroll', this.paintMural.bind(this));
     window.addEventListener('resize', this.resizeMural.bind(this));
   }
-
-  static get styles() {
-    return css`
-      :host {
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: -100;
-        overflow: hidden;
-        opacity: 1;
-      }
-
-      :host .base-color {
-        width: 100%;
-        height: 100%;
-        transition: background-color ${fadeDuration}ms ease-in;
-        background-color: var(--body-background-color-light);
-      }
-
-      :host .base-color.dark-background {
-        background-color: var(--body-background-color-dark);
-      }
-
-      :host #mural {
-        box-sizing: border-box;
-        transition: opacity ${fadeDuration}ms ease-in;
-        max-width: ${Config.size.backgroundMax};
-        display: block;
-        margin: auto;
-        opacity: 0;
-      }
-
-      :host #mural.show {
-        opacity: 1;
-      }
-    `;
-  }
-
-  render() {
-    return html`
-      <div class="base-color" id="base-color">
-        <canvas id="mural" class="mural"></canvas>
-      </div>
-    `;
-  }
 }
+
 customElements.define('vb-background', Background);

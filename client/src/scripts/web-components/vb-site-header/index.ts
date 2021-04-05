@@ -45,20 +45,6 @@ export class SiteHeader extends LitElement {
     `;
   }
 
-  private bindEvents() {
-  }
-
-  private bindPubSubEvents() {
-    PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {});
-  }
-
-  private unbindEvents() {
-  }
-
-  private unbindPubSubEvents() {
-    PubSub.unsubscribe(Signal.AppSync);
-  }
-
   disconnectedCallback() {
     super.disconnectedCallback();
     this.unbindEvents();
@@ -84,6 +70,20 @@ export class SiteHeader extends LitElement {
       </section>
       <section class="splash"></section>    
     `;
+  }
+
+  private bindEvents() {
+  }
+
+  private bindPubSubEvents() {
+    PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {});
+  }
+
+  private unbindEvents() {
+  }
+
+  private unbindPubSubEvents() {
+    PubSub.unsubscribe(Signal.AppSync);
   }
 }
 customElements.define('vb-site-header', SiteHeader);

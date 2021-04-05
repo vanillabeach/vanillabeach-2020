@@ -12,32 +12,14 @@ class PhotosWebComponent extends LitElement {
   private photoIds: string;
   private photosById: { [key: string]: Photo };
 
-  static get properties() {
-    return {
-      photoIds: { type: String },
-    };
-  }
-
   constructor() {
     super();
   }
 
-  connectedCallback() {
-    super.connectedCallback();
-    this.bindPubSubEvents();
-    this.getCategoryPhotos();
-  }
-
-  disconnectedCallback() {
-    this.unbindPubSubEvents();
-  }
-
-  attributeChangedCallback(
-    name: string,
-    oldval: string | null,
-    newval: string | null
-  ) {
-    super.attributeChangedCallback(name, oldval, newval);
+  static get properties() {
+    return {
+      photoIds: { type: String },
+    };
   }
 
   static get styles() {
@@ -90,7 +72,6 @@ class PhotosWebComponent extends LitElement {
         padding-right: 0px;
       }
 
-
       :host #photos {
         transition: opacity ${fadeDuration}ms ease-in;
         opacity: 0;
@@ -108,6 +89,19 @@ class PhotosWebComponent extends LitElement {
         background-position: center center;
       }
 
+      :host #photos .photos-header {
+        -webkit-font-smoothing: antialiased;
+        font-family: var(--header-font-family);
+        text-align: center;
+        text-transform: uppercase;
+        padding-top: 10px;
+      }
+
+      :host #photos .photos-header .photos-title {
+        color: var(--content-foreground-color);
+        font-weight: 100;
+      }
+
       :host a {
         color: var(--link-color);
         font-size: var(--body) !important;
@@ -120,6 +114,24 @@ class PhotosWebComponent extends LitElement {
     `;
   }
 
+  connectedCallback() {
+    super.connectedCallback();
+    this.bindPubSubEvents();
+    this.getCategoryPhotos();
+  }
+
+  disconnectedCallback() {
+    this.unbindPubSubEvents();
+  }
+
+  attributeChangedCallback(
+    name: string,
+    oldval: string | null,
+    newval: string | null
+  ) {
+    super.attributeChangedCallback(name, oldval, newval);
+  }
+
   render() {
     if (this.photoIds === undefined) {
       return html`<section id="photos">TBC</section>`;
@@ -127,8 +139,8 @@ class PhotosWebComponent extends LitElement {
 
     const photoIds = JSON.parse(this.photoIds);
     const numberOfColumns = 2;
-    const photoIdsByRow:string[][] = [];
-    let accumulator:string[] = [];    
+    const photoIdsByRow: string[][] = [];
+    let accumulator: string[] = [];
 
     photoIds.forEach((id: string, index: number) => {
       if (index !== 0 && index % numberOfColumns === 0) {
@@ -138,22 +150,26 @@ class PhotosWebComponent extends LitElement {
         accumulator.push(id);
       }
     });
-    
+
     return html`
       <section id="photos">
         <div class="frame">
-          <h3>Photos</h3>     
-          ${photoIdsByRow.map((photos: string[], rowIndex:number) => {
+        <header class="photos-header">
+          <h2 class="photo-title">Photographs</h2>
+        </header>     
+          ${photoIdsByRow.map((photos: string[], rowIndex: number) => {
             console.log('photos', photos);
             return html`
-              <div class="photo-categories"> 
-                ${photos.map((key: string, index:number) => {
+              <div class="photo-categories">
+                ${photos.map((key: string, index: number) => {
                   const { category, id } = this.photosById[key];
                   const url = this.getPhotoPath(category, id);
-                  return html`
-                    <div class="photo-category">
-                      <vb-photo-category url="${url}"></vb-photo-category>
-                    </div>`;
+                  return html` <div class="photo-category">
+                    <vb-photo-category
+                      name="${category}"
+                      url="${url}"
+                    ></vb-photo-category>
+                  </div>`;
                 })}
               </div>
             `;

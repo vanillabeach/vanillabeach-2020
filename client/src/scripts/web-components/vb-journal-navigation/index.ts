@@ -22,6 +22,7 @@ export class JournalNavigation extends LitElement {
       journalList: { type: String },
     };
   }
+
   static get styles() {
     return css`
       :host {
@@ -73,6 +74,51 @@ export class JournalNavigation extends LitElement {
     `;
   }
 
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.unbindEvents();
+    this.unbindPubSubEvents();
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.bindPubSubEvents();
+    this.getJournals();
+  }
+
+  updated() {
+    this.bindEvents();
+  }
+
+  render() {
+    const previousJournal = this.previousJournalId
+      ? html`<a
+          href="#"
+          data-id="previous-journal"
+          data-value="${this.previousJournalId}"
+        >
+          ${this.previousJournalTitle ? `« ${this.previousJournalTitle}` : ''}
+        </a>`
+      : html``;
+
+    const nextJournal = this.nextJournalId
+      ? html`<a
+          href="#"
+          data-id="next-journal"
+          data-value="${this.nextJournalId}"
+        >
+          ${this.nextJournalTitle ? `${this.nextJournalTitle} »` : ''}
+        </a>`
+      : html``;
+
+    return html`
+      <div id="journal-navigation" class="journal-navigation">
+        <div class="cell first">${previousJournal}</div>
+        <div class="cell second">${nextJournal}</div>
+      </div>
+    `;
+  }
+
   private bindEvents() {
     const previousJournal: HTMLElement = this.shadowRoot.querySelector(
       '*[data-id="previous-journal"]'
@@ -100,7 +146,7 @@ export class JournalNavigation extends LitElement {
         this.journalList = [...state.pages.journal.navigation].reverse();
         this.getNavigationLinks();
         this.fadeIn();
-      });      
+      });
     });
   }
 
@@ -114,12 +160,16 @@ export class JournalNavigation extends LitElement {
   }
 
   private fadeIn() {
-    const navigationEl: HTMLElement = this.shadowRoot.querySelector('#journal-navigation');
+    const navigationEl: HTMLElement = this.shadowRoot.querySelector(
+      '#journal-navigation'
+    );
     navigationEl.classList.add('show');
   }
 
   private fadeOut(callback: Function) {
-    const navigationEl: HTMLElement = this.shadowRoot.querySelector('#journal-navigation');
+    const navigationEl: HTMLElement = this.shadowRoot.querySelector(
+      '#journal-navigation'
+    );
     navigationEl.classList.remove('show');
     setTimeout(callback.bind(this), fadeDuration * 2);
   }
@@ -159,46 +209,6 @@ export class JournalNavigation extends LitElement {
       }
     });
   }
-
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    this.unbindEvents();
-    this.unbindPubSubEvents();
-  }
-
-  connectedCallback() {
-    super.connectedCallback();
-    this.bindPubSubEvents();
-    this.getJournals();
-  }
-
-  updated() {
-    this.bindEvents();
-  }
-
-  render() {
-    const previousJournal = this.previousJournalId ? html`<a
-      href="#"
-      data-id="previous-journal"
-      data-value="${this.previousJournalId}"
-    >
-      ${this.previousJournalTitle ? `« ${this.previousJournalTitle}` : ''}
-    </a>` : html``;
-
-    const nextJournal = this.nextJournalId ? html`<a
-      href="#"
-      data-id="next-journal"
-      data-value="${this.nextJournalId}"
-    >
-      ${this.nextJournalTitle ? `${this.nextJournalTitle} »` : ''}
-    </a>` : html``;
-
-    return html`
-      <div id="journal-navigation" class="journal-navigation">
-        <div class="cell first">${previousJournal}</div>
-        <div class="cell second">${nextJournal}</div>
-      </div>
-    `;
-  }
 }
+
 customElements.define('vb-journal-navigation', JournalNavigation);

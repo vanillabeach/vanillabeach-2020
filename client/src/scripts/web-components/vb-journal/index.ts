@@ -14,15 +14,15 @@ class JournalWebComponent extends LitElement {
   private content: string;
   private journal: Journal;
 
+  constructor() {
+    super();
+    this.content = '';
+  }
+
   static get properties() {
     return {
       content: { type: String },
     };
-  }
-
-  constructor() {
-    super();
-    this.content = '';
   }
 
   connectedCallback() {
@@ -129,7 +129,7 @@ class JournalWebComponent extends LitElement {
       :host #journal-header-image {
         width: 100%;
         margin-top: 0;
-        margin-bottom: 0;      
+        margin-bottom: 0;
       }
 
       :host a {
@@ -150,8 +150,8 @@ class JournalWebComponent extends LitElement {
     }
 
     const journalDateTime = DateTime.fromMillis(Number(this.journal.date));
-    const date = journalDateTime.toFormat("hh:mm a · dd MMMM yyyy") ;
-    
+    const date = journalDateTime.toFormat('hh:mm a · dd MMMM yyyy');
+
     return html`
       <section id="journal">
         <div class="frame">
@@ -161,9 +161,7 @@ class JournalWebComponent extends LitElement {
           </header>
           <article id="journal-entry" class="journal-entry">
             <img id="journal-header-image" />
-            <div class="journal-content">
-            ${unsafeHTML(this.content)}
-            </div>
+            <div class="journal-content">${unsafeHTML(this.content)}</div>
           </article>
         </div>
       </section>
@@ -176,9 +174,9 @@ class JournalWebComponent extends LitElement {
         return;
       }
       //this.fadeOut(() => {
-        this.journal = state.pages.journal.entry;
-        this.setAttribute('content', this.journal.entry);
-        this.init();
+      this.journal = state.pages.journal.entry;
+      this.setAttribute('content', this.journal.entry);
+      this.init();
       //});
     });
   }
@@ -186,7 +184,6 @@ class JournalWebComponent extends LitElement {
   private unbindPubSubEvents() {
     PubSub.unsubscribe(Signal.AppSync);
   }
-
 
   private init() {
     setTimeout(() => {
@@ -202,7 +199,7 @@ class JournalWebComponent extends LitElement {
         journalEntryEl.style.marginTop = `${offset}px`;
         journalHeaderImageEl.style.marginTop = `-${offset}px`;
         this.fadeIn();
-      }
+      };
       journalHeaderImageEl.src = this.journalImagePath;
     }, fadeDuration);
   }

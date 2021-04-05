@@ -54,21 +54,6 @@ export class Title extends LitElement {
     `;
   }
 
-  private getTitle() {
-    const text = this.textContent
-      .trim()
-      .split('')
-      .map((x: string, index: number) =>
-        index % 2 == 0
-          ? `<span class="odd">${x}</span>`
-          : `<span class="even">${x}</span>`
-      )
-      .join('');
-
-    this.setAttribute('title', text);
-    this.innerHTML = '';
-  }
-
   updated() {
     const beamEl = this.shadowRoot.querySelector('.beam') as HTMLElement;
     const h1El = this.shadowRoot.getElementById('width-calc');
@@ -85,5 +70,21 @@ export class Title extends LitElement {
       </section>
     `;
   }
+
+  private getTitle() {
+    const text = this.textContent
+      .trim()
+      .split('')
+      .map((x: string, index: number) =>
+        index % 2 == 0
+          ? `<span class="odd">${x}</span>`
+          : `<span class="even">${x}</span>`
+      )
+      .join('');
+
+    this.setAttribute('title', text);
+    this.innerHTML = '';
+  }
 }
+
 customElements.define('vb-title', Title);

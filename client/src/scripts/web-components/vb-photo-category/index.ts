@@ -1,10 +1,5 @@
-import * as PubSub from 'pubsub-js';
 import { LitElement, css, html } from 'lit-element';
 import { Config } from '../../config';
-import { JournalSummary } from '../../model/journalSummary';
-import { Navigation } from '../vb-app/navigation';
-import { State } from '../vb-app/index';
-import { Signal } from '../vb-app/enums';
 
 const fadeDuration = Config.style.fadeDuration;
 
@@ -46,9 +41,6 @@ export class PhotoCategoryWebComponent extends LitElement {
 
       :host .foreground {
         z-index: 1;
-        // border: 1px solid;
-        // border-bottom: 5px solid;
-        // border-color: var(--content-foreground-color-translucent);
         box-sizing: border-box;
         vertical-align: baseline;
       }
@@ -64,10 +56,16 @@ export class PhotoCategoryWebComponent extends LitElement {
       }
 
       :host .background {
+        transition: opacity ${fadeDuration}ms ease-in;
         z-index: 0;
         background-size: cover;
         filter: blur(2px);
         transform: scale(1.1);
+        opacity: 0;
+      }
+
+      :host .background.show {
+        opacity: 1;
       }
 
       :host h3 {
@@ -95,10 +93,9 @@ export class PhotoCategoryWebComponent extends LitElement {
             <h3>${this.name}</h3>
           </div>
         </div>
-        <div
-          class="background"
-          style="background-image: url(${this.url})"
-        ></div>
+        <div id="background" 
+             class="background" 
+             style="background-image: url(${this.url})"></div>
       </div>
     `;
   }
@@ -107,9 +104,14 @@ export class PhotoCategoryWebComponent extends LitElement {
     const container: HTMLElement = this.shadowRoot.querySelector(
       '#photo-category'
     );
-
     if (container) {
       container.addEventListener('click', this.viewPhoto);
+    }
+
+    const photoImageEl = new Image();
+    photoImageEl.onload = () => this.fadeIn({randomise: true});
+    if (photoImageEl) {
+      photoImageEl.src = this.url;
     }
   }
 
@@ -117,10 +119,18 @@ export class PhotoCategoryWebComponent extends LitElement {
     const container: HTMLElement = this.shadowRoot.querySelector(
       '#photo-category'
     );
+  }
 
-    if (container) {
-      container.removeEventListener('click', this.viewPhoto);
-    }
+  private fadeIn(args : {randomise: boolean}) {
+    function doFade() {
+      photoImageEl.classList.add('show')
+    };
+    const photoImageEl: HTMLImageElement = this.shadowRoot.querySelector(
+      '#background'
+    );      
+    const delay = (args.randomise === true) ? Math.ceil(Math.random() * 500) : 0;
+
+    setTimeout(doFade, delay);
   }
 
   private viewPhoto() {}

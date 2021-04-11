@@ -3,8 +3,9 @@ const serverUrl = 'http://localhost:4040/server';
 interface navLabel {
   pageId: string;
   label: string;
-  needsLogin?: true;
+  needsLogin?: true;  
   hasBrightBackground: boolean;
+  showInNavigation?: boolean;
 }
 
 const navigation: { [key: string]: navLabel } = {
@@ -17,7 +18,6 @@ const navigation: { [key: string]: navLabel } = {
     pageId: 'photos-and-videos',
     label: 'Photos & Videos',
     hasBrightBackground: false,
-
   },
   magazine: {
     pageId: 'magazine',

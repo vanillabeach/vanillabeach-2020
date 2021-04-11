@@ -164,12 +164,14 @@ class PhotosWebComponent extends LitElement {
                 ${photos.map((key: string, index: number) => {
                   const { category, id } = this.photosById[key];
                   const url = this.getPhotoPath(category, id);
-                  return html` <div class="photo-category">
-                    <vb-photo-category
-                      name="${category}"
-                      url="${url}"
-                    ></vb-photo-category>
-                  </div>`;
+                  return html`
+                    <div class="photo-category">
+                      <vb-photo-category
+                        name="${category}"
+                        url="${url}"
+                      ></vb-photo-category>
+                    </div>
+                  `;
                 })}
               </div>
             `;

@@ -22,7 +22,8 @@ export type State = {
     };
     photosAndVideos: {
       photos: {
-        categoryPhotos: Photo[];
+        categories: Photo[];
+        photosInCategory: Photo[];
       };
     };
   };
@@ -85,9 +86,9 @@ export class App extends LitElement {
       this.broadcastState();
     });
 
-    PubSub.subscribe(Signal.CategoryPhotosRequest, async () => {
-      const categoryPhotos = await PhotoHandler.getCategoryPhotos();
-      this.state.pages.photosAndVideos.photos.categoryPhotos = categoryPhotos;
+    PubSub.subscribe(Signal.PhotosRequest, async (_: string, category: string) => {
+      const categoryPhotos = await PhotoHandler.getPhotos(category);
+      this.state.pages.photosAndVideos.photos.categories = categoryPhotos;
       this.state = { ...this.state };
       this.broadcastState();
     });
@@ -127,7 +128,8 @@ export class App extends LitElement {
         },
         photosAndVideos: {
           photos: {
-            categoryPhotos: null,
+            categories: null,
+            photosInCategory: null,
           },
         },
       },

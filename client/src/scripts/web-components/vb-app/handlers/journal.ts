@@ -4,9 +4,8 @@ import { Config } from '../../../config';
 
 export class JournalHandler {
   static async getJournal(id = ''): Promise<Journal> {
-    const url = id === '' 
-      ? Config.url.server.journal.entry
-      : `${Config.url.server.journal.entry}?id=${id}`;
+    const basePath = Config.url.server.journal.entry;
+    const url = id === '' ? basePath : `${basePath}?id=${id}`;
     let result: Journal = null;
 
     await fetch(url, { method: 'GET' })

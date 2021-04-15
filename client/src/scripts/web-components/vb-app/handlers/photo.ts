@@ -2,8 +2,10 @@ import { Photo } from '../../../model/photo';
 import { Config } from '../../../config';
 
 export class PhotoHandler {
-  static async getCategoryPhotos(): Promise<Photo[]> {
-    const url = Config.url.server.photo.categoryPhotos;
+  static async getPhotos(category = ''): Promise<Photo[]> {
+    const categoriesPath = Config.url.server.photo.categories;
+    const photosPath = Config.url.server.photo.photosForCategory;
+    const url = category === '' ? categoriesPath : `${photosPath}?category=${category}`;
     let result: Photo[] = null;
 
     await fetch(url, { method: 'GET' })

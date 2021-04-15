@@ -5,13 +5,13 @@ const fadeDuration = Config.style.fadeDuration;
 
 export class PhotoCategoryWebComponent extends LitElement {
   private name: string;
-  private url: string;
+  private src: string;
   private href: string;
 
   static get properties() {
     return {
       name: { type: String },
-      url: { type: String },
+      src: { type: String },
       href: { type: String },
     };
   }
@@ -95,7 +95,7 @@ export class PhotoCategoryWebComponent extends LitElement {
         </div>
         <div id="background" 
              class="background" 
-             style="background-image: url(${this.url})"></div>
+             style="background-image: url(${this.src})"></div>
       </div>
     `;
   }
@@ -105,13 +105,13 @@ export class PhotoCategoryWebComponent extends LitElement {
       '#photo-category'
     );
     if (container) {
-      container.addEventListener('click', this.viewPhoto);
+      container.addEventListener('click', this.viewPhoto.bind(this));
     }
 
     const photoImageEl = new Image();
     photoImageEl.onload = () => this.fadeIn({randomise: true});
     if (photoImageEl) {
-      photoImageEl.src = this.url;
+      photoImageEl.src = this.src;
     }
   }
 
@@ -119,6 +119,9 @@ export class PhotoCategoryWebComponent extends LitElement {
     const container: HTMLElement = this.shadowRoot.querySelector(
       '#photo-category'
     );
+    if (container) {
+      container.removeEventListener('click', this.viewPhoto.bind(this));
+    }
   }
 
   private fadeIn(args : {randomise: boolean}) {
@@ -133,7 +136,9 @@ export class PhotoCategoryWebComponent extends LitElement {
     setTimeout(doFade, delay);
   }
 
-  private viewPhoto() {}
+  private viewPhoto() {
+    document.location.hash = this.href;
+  }
 }
 
 customElements.define('vb-photo-category', PhotoCategoryWebComponent);

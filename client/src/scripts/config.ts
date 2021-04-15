@@ -50,7 +50,8 @@ export const Config = {
         media: `/resources/journal`,
       },
       photo: {
-        categoryPhotos: `${serverUrl}/categoryPhotos`,
+        categories: `${serverUrl}/categoryPhotos`,
+        photosForCategory: `${serverUrl}/photos`,
         media: `/resources/photos`,
       },
     },

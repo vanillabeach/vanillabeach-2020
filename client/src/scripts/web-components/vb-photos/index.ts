@@ -135,6 +135,8 @@ class PhotosWebComponent extends LitElement {
     newval: string | null
   ) {
     if (name === 'category') {
+      this.photoIds = '';
+      this.photosById = {};
       this.getPhotos(newval);
     }
     super.attributeChangedCallback(name, oldval, newval);
@@ -147,7 +149,7 @@ class PhotosWebComponent extends LitElement {
 
     const title = this.category ? this.category : 'Albums';
     const photoIds = JSON.parse(this.photoIds);
-    const numberOfColumns = 2;
+    const numberOfColumns = this.category ? 4 : 2;
     const photoIdsByRow: string[][] = [];
     let accumulator: string[] = [];
 
@@ -161,7 +163,7 @@ class PhotosWebComponent extends LitElement {
     });
 
     return html`
-      <section id="photos">
+      <section id="photos" class="show">
         <div class="frame">
         <header class="photos-header">
           <h2 class="photo-title">${title}</h2>
@@ -169,11 +171,23 @@ class PhotosWebComponent extends LitElement {
           ${photoIdsByRow.map((photos: string[], rowIndex: number) => {
             return html`
               <div class="photo-categories">
-                ${photos.map((key: string, index: number) => {
+                ${photos.map((key: string) => {
                   const { category, id } = this.photosById[key];
                   const url = this.getPhotoPath(category, id);
                   const categoryId = encodeURIComponent(category.toLowerCase());
                   const href = `${this.pageId}/${categoryId}`;
+
+                  if (this.category) {
+                    return html`
+                      <div class="photo-category">
+                        <vb-photo-thumbnail
+                          name="${category}"
+                          src="${url}"
+                          href="${href}"
+                        ></vb-photo-thumbnail>
+                      </div>
+                    `;
+                  }
 
                   return html`
                     <div class="photo-category">
@@ -192,12 +206,18 @@ class PhotosWebComponent extends LitElement {
   }
 
   private bindPubSubEvents() {
-    PubSub.subscribe(Signal.UrlChange, (category: string, page: {name: string, param: string}) => {
-      if (page.name !== this.pageId) {
-        return;
+    PubSub.subscribe(
+      Signal.UrlChange,
+      (category: string, page: { name: string; param: string }) => {
+        if (page.name !== this.pageId) {
+          return;
+        }
+        this.fadeOut(() => {
+          this.category = decodeURIComponent(page.param);
+          this.fadeIn();
+        });
       }
-      this.category = decodeURIComponent(page.param);
-    });
+    );
 
     PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {
       const categories = state.pages.photosAndVideos.photos.categories;
@@ -206,28 +226,18 @@ class PhotosWebComponent extends LitElement {
       }
       const contentIds = categories.map((photo: Photo) => photo.id);
 
-      this.fadeOut(() => {
-        let photosById: { [key: string]: Photo } = {};
-        categories.forEach((photo: Photo) => {
-          photosById[photo.id] = photo;
-        });
-        this.photosById = photosById;
-        this.setAttribute('photoIds', JSON.stringify(contentIds));
-        this.init();
+      let photosById: { [key: string]: Photo } = {};
+      categories.forEach((photo: Photo) => {
+        photosById[photo.id] = photo;
       });
+      this.photosById = photosById;
+      this.setAttribute('photoIds', JSON.stringify(contentIds));
     });
   }
 
   private unbindPubSubEvents() {
     PubSub.unsubscribe(Signal.AppSync);
   }
-
-  private init() {
-    setTimeout(() => {
-      this.fadeIn();
-    }, 50);
-  }
-
   private fadeIn() {
     window.scrollTo(0, 0);
     const photosEl: HTMLElement = this.shadowRoot.querySelector('#photos');
@@ -247,7 +257,7 @@ class PhotosWebComponent extends LitElement {
   }
 
   private getPhotoPath(category: string, id: string): string {
-    const photoId = `${id}/S_${id}.png`;
+    const photoId = `${id}/M_${id}.png`;
     const path = `${Config.url.server.photo.media}/${category}/${photoId}`;
     return encodeURI(path);
   }

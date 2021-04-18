@@ -6,4 +6,5 @@ import "./web-components/vb-nav";
 import "./web-components/vb-page";
 import "./web-components/vb-photos";
 import "./web-components/vb-photo-category";
+import "./web-components/vb-photo-thumbnail";
 import "./web-components/vb-site-header";

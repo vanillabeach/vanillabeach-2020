@@ -1,5 +1,5 @@
 import * as PubSub from 'pubsub-js';
-import { LitElement, css, html } from 'lit-element';
+import { LitElement, TemplateResult, css, html } from 'lit-element';
 import { Config } from '../../config';
 import { Photo } from '../../model/photo';
 import { Signal } from '../vb-app/enums';
@@ -9,10 +9,11 @@ const renderEffects = false;
 const fadeDuration = Config.style.fadeDuration;
 
 class PhotosWebComponent extends LitElement {
-  private photoIds: string;
   private photosById: { [key: string]: Photo };
   private category: string;
   private pageId: string;
+  private albumTiles: TemplateResult[];
+  private albumTitle: string;
 
   constructor() {
     super();
@@ -21,9 +22,10 @@ class PhotosWebComponent extends LitElement {
 
   static get properties() {
     return {
-      photoIds: { type: String },
       category: { type: String, reflect: true },
       pageId: { type: String },
+      albumTiles: {type: Array,  attribute: false },
+      albumTitle: {type: String,  attribute: false}
     };
   }
 
@@ -136,7 +138,6 @@ class PhotosWebComponent extends LitElement {
     newval: string | null
   ) {
     if (name === 'category') {
-      this.photoIds = '';
       this.photosById = {};
       this.getPhotos(newval);
     }
@@ -144,12 +145,80 @@ class PhotosWebComponent extends LitElement {
   }
 
   render() {
-    if (this.photoIds === undefined) {
+    if (this.albumTiles === undefined) {
       return html``;
     }
 
-    const title = this.category ? this.category : 'Albums';
-    const photoIds = JSON.parse(this.photoIds);
+    return html`
+      <section id="photos" class="show">
+        <div class="frame">
+        <header class="photos-header">
+          <h2 class="photo-title">${this.albumTitle}</h2>
+        </header>     
+          ${this.albumTiles}                                    
+      </section>`;
+  }
+
+  private bindPubSubEvents() {
+    PubSub.subscribe(
+      Signal.UrlChange,
+      (category: string, page: { name: string; param: string }) => {
+        if (page.name !== this.pageId) {
+          return;
+        }
+        this.fadeOut(() => {
+          this.category = decodeURIComponent(page.param);
+          this.fadeIn();
+        });
+      }
+    );
+
+    PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {
+      const categories = state.pages.photosAndVideos.photos.categories;
+      if (!categories) {
+        return;
+      }
+      const contentIds = categories.map((photo: Photo) => photo.id);
+
+      let photosById: { [key: string]: Photo } = {};
+      categories.forEach((photo: Photo) => {
+        photosById[photo.id] = photo;
+      });
+      this.photosById = photosById;
+      this.setAlbumTiles(contentIds);
+      this.setAlbumTitleTitle();
+    });
+  }
+
+  private unbindPubSubEvents() {
+    PubSub.unsubscribe(Signal.AppSync);
+  }
+
+  private fadeIn() {
+    window.scrollTo(0, 0);
+    const photosEl: HTMLElement = this.shadowRoot.querySelector('#photos');
+    photosEl.classList.add('show');
+  }
+
+  private fadeOut(callback?: Function) {
+    const photosEl: HTMLElement = this.shadowRoot.querySelector('#photos');
+    photosEl.classList.remove('show');
+    if (callback) {
+      setTimeout(callback.bind(this), fadeDuration);
+    }
+  }
+
+  private getPhotos(category?: string) {
+    PubSub.publish(Signal.PhotosRequest, category);
+  }
+
+  private getPhotoPath(category: string, id: string): string {
+    const photoId = `${id}/${id}_small.jpg`;
+    const path = `${Config.url.server.photo.media}/${category}/${photoId}`;
+    return encodeURI(path);
+  }
+
+  private setAlbumTiles(photoIds: string[]) {
     const numberOfColumns = this.category ? 4 : 2;
     const photoIdsByRow: string[][] = [];
     let accumulator: string[] = [];
@@ -166,10 +235,7 @@ class PhotosWebComponent extends LitElement {
       photoIdsByRow.push(accumulator);
     }
 
-    console.log('photoIdsByRow', photoIdsByRow);
-
-
-    const tiles = photoIdsByRow.map((photos: string[]) => html`
+    this.albumTiles = photoIdsByRow.map((photos: string[]) => html`
         <div class="photo-categories">
           ${photos.map((key: string) => {
             const { category, id } = this.photosById[key];
@@ -201,72 +267,10 @@ class PhotosWebComponent extends LitElement {
           })}
         </div>
       `);
-
-    return html`
-      <section id="photos" class="show">
-        <div class="frame">
-        <header class="photos-header">
-          <h2 class="photo-title">${title}</h2>
-        </header>     
-          ${tiles}                                    
-      </section>`;
   }
 
-  private bindPubSubEvents() {
-    PubSub.subscribe(
-      Signal.UrlChange,
-      (category: string, page: { name: string; param: string }) => {
-        if (page.name !== this.pageId) {
-          return;
-        }
-        this.fadeOut(() => {
-          this.category = decodeURIComponent(page.param);
-          this.fadeIn();
-        });
-      }
-    );
-
-    PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {
-      const categories = state.pages.photosAndVideos.photos.categories;
-      if (!categories) {
-        return;
-      }
-      const contentIds = categories.map((photo: Photo) => photo.id);
-
-      let photosById: { [key: string]: Photo } = {};
-      categories.forEach((photo: Photo) => {
-        photosById[photo.id] = photo;
-      });
-      this.photosById = photosById;
-      this.setAttribute('photoIds', JSON.stringify(contentIds));
-    });
-  }
-
-  private unbindPubSubEvents() {
-    PubSub.unsubscribe(Signal.AppSync);
-  }
-  private fadeIn() {
-    window.scrollTo(0, 0);
-    const photosEl: HTMLElement = this.shadowRoot.querySelector('#photos');
-    photosEl.classList.add('show');
-  }
-
-  private fadeOut(callback?: Function) {
-    const photosEl: HTMLElement = this.shadowRoot.querySelector('#photos');
-    photosEl.classList.remove('show');
-    if (callback) {
-      setTimeout(callback.bind(this), fadeDuration);
-    }
-  }
-
-  private getPhotos(category?: string) {
-    PubSub.publish(Signal.PhotosRequest, category);
-  }
-
-  private getPhotoPath(category: string, id: string): string {
-    const photoId = `${id}/${id}_small.jpg`;
-    const path = `${Config.url.server.photo.media}/${category}/${photoId}`;
-    return encodeURI(path);
+  private setAlbumTitleTitle() {
+    this.albumTitle = this.category ? this.category : 'Albums';
   }
 }
 

@@ -78,11 +78,12 @@ class PhotosWebComponent extends LitElement {
       }
 
       :host #photos {
-        transition: opacity ${fadeDuration}ms ease-in;
+        transition: opacity ${fadeDuration}ms ease-in 2s;
         opacity: 0;
       }
 
       :host #photos.show {
+        transition: ease-in;
         opacity: 1;
       }
 
@@ -144,7 +145,7 @@ class PhotosWebComponent extends LitElement {
 
   render() {
     if (this.photoIds === undefined) {
-      return html`<section id="photos">TBC</section>`;
+      return html``;
     }
 
     const title = this.category ? this.category : 'Albums';
@@ -161,6 +162,45 @@ class PhotosWebComponent extends LitElement {
         accumulator.push(id);
       }
     });
+    if (accumulator.length > 0) {
+      photoIdsByRow.push(accumulator);
+    }
+
+    console.log('photoIdsByRow', photoIdsByRow);
+
+
+    const tiles = photoIdsByRow.map((photos: string[]) => html`
+        <div class="photo-categories">
+          ${photos.map((key: string) => {
+            const { category, id } = this.photosById[key];
+            const url = this.getPhotoPath(category, id);
+            const categoryId = encodeURIComponent(category.toLowerCase());
+            const href = `${this.pageId}/${categoryId}`;
+
+            if (this.category) {
+              return html`
+                <div class="photo-category">
+                  <vb-photo-thumbnail
+                    name="${category}"
+                    src="${url}"
+                    href="${href}"
+                  ></vb-photo-thumbnail>
+                </div>
+              `;
+            }
+
+            return html`
+              <div class="photo-category">
+                <vb-photo-category
+                  name="${category}"
+                  src="${url}"
+                  href="${href}"
+                ></vb-photo-category>
+              </div>
+            `;
+          })}
+        </div>
+      `);
 
     return html`
       <section id="photos" class="show">
@@ -168,40 +208,7 @@ class PhotosWebComponent extends LitElement {
         <header class="photos-header">
           <h2 class="photo-title">${title}</h2>
         </header>     
-          ${photoIdsByRow.map((photos: string[], rowIndex: number) => {
-            return html`
-              <div class="photo-categories">
-                ${photos.map((key: string) => {
-                  const { category, id } = this.photosById[key];
-                  const url = this.getPhotoPath(category, id);
-                  const categoryId = encodeURIComponent(category.toLowerCase());
-                  const href = `${this.pageId}/${categoryId}`;
-
-                  if (this.category) {
-                    return html`
-                      <div class="photo-category">
-                        <vb-photo-thumbnail
-                          name="${category}"
-                          src="${url}"
-                          href="${href}"
-                        ></vb-photo-thumbnail>
-                      </div>
-                    `;
-                  }
-
-                  return html`
-                    <div class="photo-category">
-                      <vb-photo-category
-                        name="${category}"
-                        src="${url}"
-                        href="${href}"
-                      ></vb-photo-category>
-                    </div>
-                  `;
-                })}
-              </div>
-            `;
-          })}                                    
+          ${tiles}                                    
       </section>`;
   }
 
@@ -257,7 +264,7 @@ class PhotosWebComponent extends LitElement {
   }
 
   private getPhotoPath(category: string, id: string): string {
-    const photoId = `${id}/M_${id}.png`;
+    const photoId = `${id}/${id}_small.jpg`;
     const path = `${Config.url.server.photo.media}/${category}/${photoId}`;
     return encodeURI(path);
   }

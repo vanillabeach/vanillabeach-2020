@@ -38,6 +38,8 @@ export class Navigation {
         ? ''
         : currentHash.substring(name.length + 2);
 
+    console.log('nav param', param);
+
     PubSub.publish(Signal.UrlChange, {
       name,
       param,

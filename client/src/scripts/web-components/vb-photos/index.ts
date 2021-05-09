@@ -8,10 +8,16 @@ import { State } from '../vb-app/index';
 const renderEffects = false;
 const fadeDuration = Config.style.fadeDuration;
 
+type PhotoUrlParams = {
+  category : string
+  photoId : string
+};
+
 class PhotosWebComponent extends LitElement {
   private photosById: { [key: string]: Photo };
   private category: string;
   private pageId: string;
+  private photoId: string;
   private albumTiles: TemplateResult[];
   private albumTitle: string;
 
@@ -24,8 +30,9 @@ class PhotosWebComponent extends LitElement {
     return {
       category: { type: String, reflect: true },
       pageId: { type: String },
-      albumTiles: {type: Array,  attribute: false },
-      albumTitle: {type: String,  attribute: false}
+      photoId: { type: String },
+      albumTiles: { type: Array, attribute: false },
+      albumTitle: { type: String, attribute: false },
     };
   }
 
@@ -62,7 +69,8 @@ class PhotosWebComponent extends LitElement {
         padding-right: 20px;
       }
 
-      :host .photo-category {
+      :host .photo-category,
+      :host .photo-thumbnail {
         flex: 1;
         height: 200px;
         box-sizing: border-box;
@@ -71,11 +79,13 @@ class PhotosWebComponent extends LitElement {
         padding-bottom: 20px;
       }
 
-      :host .photo-category:first-of-type {
+      :host .photo-category:first-of-type,
+      :host .photo-thumbnail:first-of-type {
         padding-left: 0px;
       }
 
-      :host .photo-category:last-of-type {
+      :host .photo-category:last-of-type,
+      :host .photo-thumbnail:last-of-type {
         padding-right: 0px;
       }
 
@@ -166,8 +176,11 @@ class PhotosWebComponent extends LitElement {
         if (page.name !== this.pageId) {
           return;
         }
+        const params = this.getUrlParams(page.param);
+
         this.fadeOut(() => {
-          this.category = decodeURIComponent(page.param);
+          this.category = params.category;
+          this.photoId = params.photoId;
           this.fadeIn();
         });
       }
@@ -218,6 +231,14 @@ class PhotosWebComponent extends LitElement {
     return encodeURI(path);
   }
 
+  private getUrlParams(urlParam: string): PhotoUrlParams {
+    const param = decodeURIComponent(urlParam).split('/');
+    return {
+      category : param[0],
+      photoId : param[1]
+    };
+  } 
+
   private setAlbumTiles(photoIds: string[]) {
     const numberOfColumns = this.category ? 4 : 2;
     const photoIdsByRow: string[][] = [];
@@ -235,19 +256,24 @@ class PhotosWebComponent extends LitElement {
       photoIdsByRow.push(accumulator);
     }
 
-    this.albumTiles = photoIdsByRow.map((photos: string[]) => html`
+    this.albumTiles = photoIdsByRow.map(
+      (photos: string[]) => html`
         <div class="photo-categories">
           ${photos.map((key: string) => {
             const { category, id } = this.photosById[key];
-            const url = this.getPhotoPath(category, id);
             const categoryId = encodeURIComponent(category.toLowerCase());
-            const href = `${this.pageId}/${categoryId}`;
+            const url = this.getPhotoPath(category, id);
+            const isPhoto = this.category !== undefined;
+            const href = isPhoto
+              ? `${this.pageId}/${categoryId}/${id}`
+              : `${this.pageId}/${categoryId}`;
 
-            if (this.category) {
+            console.log('isPhoto', isPhoto);
+
+            if (isPhoto) {
               return html`
                 <div class="photo-category">
                   <vb-photo-thumbnail
-                    name="${category}"
                     src="${url}"
                     href="${href}"
                   ></vb-photo-thumbnail>
@@ -255,8 +281,9 @@ class PhotosWebComponent extends LitElement {
               `;
             }
 
+            // href = `${this.pageId}/${categoryId}/${id}`;
             return html`
-              <div class="photo-category">
+              <div class="photo-thumbnail">
                 <vb-photo-category
                   name="${category}"
                   src="${url}"
@@ -266,7 +293,8 @@ class PhotosWebComponent extends LitElement {
             `;
           })}
         </div>
-      `);
+      `
+    );
   }
 
   private setAlbumTitleTitle() {

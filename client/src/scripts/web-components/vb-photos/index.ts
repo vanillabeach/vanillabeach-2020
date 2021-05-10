@@ -37,8 +37,6 @@ class PhotosWebComponent extends LitElement {
   }
 
   static get styles() {
-    const photoOpacity = renderEffects ? css`var(--journalOpacity)` : css`1`;
-
     return css`
       :host {
         line-height: 1.5;
@@ -155,12 +153,24 @@ class PhotosWebComponent extends LitElement {
   }
 
   render() {
+
     if (this.albumTiles === undefined) {
       return html``;
     }
 
+    let fullSizePhoto = html``;
+    if (this.photoId !== undefined) {
+      const url = this.getPhotoPath(this.category, this.photoId, false);
+      const exitUrl = `${this.pageId}/${this.category}`;
+
+      fullSizePhoto = html`
+        <vb-photo url="${url}" exitUrl="${exitUrl}">
+      `;
+    }
+
     return html`
-      <section id="photos" class="show">
+      ${fullSizePhoto}
+      <section id="photos" class="show">        
         <div class="frame">
         <header class="photos-header">
           <h2 class="photo-title">${this.albumTitle}</h2>
@@ -225,8 +235,8 @@ class PhotosWebComponent extends LitElement {
     PubSub.publish(Signal.PhotosRequest, category);
   }
 
-  private getPhotoPath(category: string, id: string): string {
-    const photoId = `${id}/${id}_small.jpg`;
+  private getPhotoPath(category: string, id: string, isThumbnail = true): string {
+    const photoId = isThumbnail ? `${id}/${id}_small.jpg` : `${id}/${id}.png`;
     const path = `${Config.url.server.photo.media}/${category}/${photoId}`;
     return encodeURI(path);
   }
@@ -240,7 +250,9 @@ class PhotosWebComponent extends LitElement {
   } 
 
   private setAlbumTiles(photoIds: string[]) {
-    const numberOfColumns = this.category ? 4 : 2;
+    console.log('this.category', this.category);
+    const isPhoto = this.category !== undefined && this.category.length > 0;
+    const numberOfColumns = isPhoto ? 4 : 2;
     const photoIdsByRow: string[][] = [];
     let accumulator: string[] = [];
 
@@ -263,12 +275,9 @@ class PhotosWebComponent extends LitElement {
             const { category, id } = this.photosById[key];
             const categoryId = encodeURIComponent(category.toLowerCase());
             const url = this.getPhotoPath(category, id);
-            const isPhoto = this.category !== undefined;
             const href = isPhoto
               ? `${this.pageId}/${categoryId}/${id}`
               : `${this.pageId}/${categoryId}`;
-
-            console.log('isPhoto', isPhoto);
 
             if (isPhoto) {
               return html`
@@ -281,7 +290,6 @@ class PhotosWebComponent extends LitElement {
               `;
             }
 
-            // href = `${this.pageId}/${categoryId}/${id}`;
             return html`
               <div class="photo-thumbnail">
                 <vb-photo-category

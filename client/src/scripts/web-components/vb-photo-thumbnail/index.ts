@@ -27,6 +27,7 @@ export class PhotoThumbnailWebComponent extends LitElement {
         outline: none;
         cursor: pointer;
         overflow: hidden;
+        background-position: center center;
         background-size: cover;
         transition: opacity ${fadeDuration}ms ease-in;
         opacity: 0;

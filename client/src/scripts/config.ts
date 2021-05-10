@@ -41,6 +41,9 @@ export const Config = {
   style: {
     fadeDuration: 200,
   },
+  timing: {
+    fadeInLatency: 200,
+  },
   url: {
     server: {
       backgrounds: `/resources/site/backgrounds`,

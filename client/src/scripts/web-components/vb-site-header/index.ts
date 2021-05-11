@@ -10,6 +10,8 @@ export class SiteHeader extends LitElement {
     return css`
       :host {
           display: block;
+          position: relative;
+          z-index: 1;
       }    
 
       :host .logo {

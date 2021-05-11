@@ -43,10 +43,12 @@ export const Config = {
   },
   timing: {
     fadeInLatency: 200,
+    siteFadeInLatency: 1000,
   },
   url: {
     server: {
-      backgrounds: `/resources/site/backgrounds`,
+      backgrounds: `/resources/site/backgrounds`,    
+      icons: '/resources/site/icons',
       journal: {
         entry: `${serverUrl}/journal`,
         list: `${serverUrl}/journals`,

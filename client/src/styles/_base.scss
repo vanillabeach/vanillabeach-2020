@@ -47,5 +47,11 @@ body {
   }
 }
 
+* {
+  -webkit-appearance: value;
+  -moz-appearance:    value;
+  appearance:         value;
+}
+
 
 

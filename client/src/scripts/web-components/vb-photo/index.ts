@@ -2,6 +2,7 @@ import { LitElement, css, html, TemplateResult } from 'lit-element';
 import { Config } from '../../config';
 
 const fadeDuration = Config.style.fadeDuration;
+const iconsUrl = Config.url.server.icons;
 
 export class Photo extends LitElement {
   private url: string;
@@ -26,7 +27,7 @@ export class Photo extends LitElement {
 
       :host .full-screen-photo {
         position: fixed;
-        background-color: var(--content-foreground-color);
+        background: var(--content-foreground-color) url(/resources/site/decorations/spinner.svg) center center no-repeat;
         top: 0;
         bottom: 0;
         left: 0;
@@ -49,6 +50,18 @@ export class Photo extends LitElement {
         background-repeat: no-repeat;
         background-size: cover;
         transition: opacity ${fadeDuration}ms ease-in;
+      }
+
+      :host .photo .icon {
+        width: 100px;
+        height: 64px;
+        background-color: var(--content-background-color);
+        border: 0px;
+        border-bottom: var(--under-border-thickness) solid var(--content-foreground-color-translucent);
+      }
+
+      :host .photo .icon  img {
+        width: 32px;
       }
 
       :host .photo.show {
@@ -76,7 +89,9 @@ export class Photo extends LitElement {
 
     return html` <div class="full-screen-photo">
       <div id="photo" class="photo" style="background-image: url(${this.url})">
-        <button id="exit">Exit</button>
+        <button class="icon" id="exit">
+            <img src="${iconsUrl}/close.svg" title="Close" />
+        </button>
       </div>
     </div>`;
   }

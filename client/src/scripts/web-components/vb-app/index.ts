@@ -50,7 +50,16 @@ export class App extends LitElement {
 
   static get styles() {
     return css`
-      :host .site {
+      :host .container {
+        transition: opacity ${fadeDuration}ms ease-in;
+        opacity: 0;
+      }
+
+      :host .container.show {
+        opacity: 1;
+      }
+
+      :host .container .site {
         max-width: var(--default-width);
         margin: auto;
         background-color: var(--content-background-color);
@@ -61,7 +70,7 @@ export class App extends LitElement {
   }
 
   updated(changedProperties: PropertyValues) {
-    console.log('state', this.state);
+    window.setTimeout(this.fadeIn.bind(this), Config.timing.siteFadeInLatency);
   }
 
   connectedCallback() {
@@ -70,10 +79,12 @@ export class App extends LitElement {
 
   render() {
     return html`
-      <vb-background class="background"></vb-background>
-      <section class="site">
-        <slot></slot>
-      </section>
+      <div id="container" class="container">
+        <vb-background class="background"></vb-background>
+        <section class="site">
+          <slot></slot>
+        </section>
+      </div>
     `;
   }
 
@@ -112,6 +123,12 @@ export class App extends LitElement {
 
   private broadcastState() {
     PubSub.publish(Signal.AppSync, this.state);
+  }
+
+  private fadeIn() {
+    const containerEl = this.shadowRoot.querySelector('#container');
+
+    containerEl.classList.add('show');
   }
 
   private getInitialState(): State {

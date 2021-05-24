@@ -1,4 +1,5 @@
 import { LitElement, css, html, TemplateResult } from 'lit-element';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
 import { Config } from '../../config';
 import { Photo } from '../../model/photo';
 import { Signal } from '../vb-app/enums';
@@ -98,6 +99,11 @@ export class VBPhoto extends LitElement {
         font-family: var(--header-font-family);
         text-transform: uppercase;
       }
+
+      :host .photo > section .comment {
+        margin-top: 1em;
+        font-style: italic;
+      }
     `;
   }
 
@@ -121,19 +127,23 @@ export class VBPhoto extends LitElement {
       ? this.getPhotoPath(this.photo.category, this.photo.id)
       : '';
     const title = this.photo ? this.photo.title : '';
-    const entry = this.photo ? this.photo.entry : '';
+    const entry = this.photo ? unsafeHTML(this.photo.entry) : '';
+    const comment = this.photo
+      ? html`<div class="comment">${unsafeHTML(this.photo.comment.trim())}</div>`
+      : html``;
 
     photo.src = url;
     photo.onload = () => {
-      const photoIsNarrowOnWideScreen = ((window.innerWidth > window.innerHeight) && (photo.width < photo.height));
-      const photoIsWideOnNarrowScreen = ((window.innerWidth < window.innerHeight) && (photo.width > photo.height));
-      console.log('photo', photo.width, photo.height, photoIsNarrowOnWideScreen, photoIsWideOnNarrowScreen);
+      const photoIsNarrowOnWideScreen =
+        window.innerWidth > window.innerHeight && photo.width < photo.height;
+      const photoIsWideOnNarrowScreen =
+        window.innerWidth < window.innerHeight && photo.width > photo.height;
 
       if (photoIsNarrowOnWideScreen || photoIsWideOnNarrowScreen) {
         this.shadowRoot.querySelector('#photo').classList.add('fit');
       }
       this.fadeIn();
-    }
+    };
 
     return html` <div class="full-screen-photo">
       <div id="photo" class="photo" style="background-image: url(${url})">
@@ -142,7 +152,7 @@ export class VBPhoto extends LitElement {
         </button>
         <section>
           <h2>${title}</h2>
-          ${entry}
+          ${entry} ${comment}
         </section>
       </div>
     </div>`;
@@ -171,7 +181,6 @@ export class VBPhoto extends LitElement {
   }
 
   private getPhoto() {
-    console.log('PUBLISH PHOTO ENTRY REQUEST');
     PubSub.publish(Signal.PhotoEntryRequest, this.photoId);
   }
 
@@ -192,8 +201,6 @@ export class VBPhoto extends LitElement {
   }
 
   private exitEvent() {
-    console.log('exitUrl', this.exitUrl);
-
     if (this.exitUrl) {
       document.location.hash = this.exitUrl;
     }

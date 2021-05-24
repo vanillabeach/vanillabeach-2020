@@ -60,6 +60,6 @@ export class Navigation {
   }
 
   init(): number {
-    return window.setInterval(this.checkNaviation.bind(this), 500);
+    return window.setInterval(this.checkNaviation.bind(this), 100);
   }
 }

@@ -9,8 +9,8 @@ const renderEffects = false;
 const fadeDuration = Config.style.fadeDuration;
 
 type PhotoUrlParams = {
-  category : string
-  photoId : string
+  category: string;
+  photoId: string;
 };
 
 class PhotosWebComponent extends LitElement {
@@ -153,19 +153,17 @@ class PhotosWebComponent extends LitElement {
   }
 
   render() {
-
     if (this.albumTiles === undefined) {
       return html``;
     }
 
     let fullSizePhoto = html``;
     if (this.photoId !== undefined) {
-      const url = this.getPhotoPath(this.category, this.photoId, false);
+      const photoId = this.photoId;
       const exitUrl = `${this.pageId}/${this.category}`;
 
       fullSizePhoto = html`
-        <vb-photo url="${url}" exitUrl="${exitUrl}">
-      `;
+        <vb-photo photoId="${photoId}" exitUrl="${exitUrl}"></vb-photo>`;
     }
 
     return html`
@@ -209,7 +207,7 @@ class PhotosWebComponent extends LitElement {
       });
       this.photosById = photosById;
       this.setAlbumTiles(contentIds);
-      this.setAlbumTitleTitle();
+      this.setAlbumTitle();
     });
   }
 
@@ -235,7 +233,11 @@ class PhotosWebComponent extends LitElement {
     PubSub.publish(Signal.PhotosRequest, category);
   }
 
-  private getPhotoPath(category: string, id: string, isThumbnail = true): string {
+  private getPhotoPath(
+    category: string,
+    id: string,
+    isThumbnail = true
+  ): string {
     const photoId = isThumbnail ? `${id}/${id}_small.jpg` : `${id}/${id}.png`;
     const path = `${Config.url.server.photo.media}/${category}/${photoId}`;
     return encodeURI(path);
@@ -244,13 +246,12 @@ class PhotosWebComponent extends LitElement {
   private getUrlParams(urlParam: string): PhotoUrlParams {
     const param = decodeURIComponent(urlParam).split('/');
     return {
-      category : param[0],
-      photoId : param[1]
+      category: param[0],
+      photoId: param[1],
     };
-  } 
+  }
 
   private setAlbumTiles(photoIds: string[]) {
-    console.log('this.category', this.category);
     const isPhoto = this.category !== undefined && this.category.length > 0;
     const numberOfColumns = isPhoto ? 4 : 2;
     const photoIdsByRow: string[][] = [];
@@ -272,7 +273,9 @@ class PhotosWebComponent extends LitElement {
       (photos: string[]) => html`
         <div class="photo-categories">
           ${photos.map((key: string) => {
-            const { category, id } = this.photosById[key];
+            const { category, id, title } = this.photosById[key];
+
+            const description = 'Lorem Ipsum';
             const categoryId = encodeURIComponent(category.toLowerCase());
             const url = this.getPhotoPath(category, id);
             const href = isPhoto
@@ -281,7 +284,7 @@ class PhotosWebComponent extends LitElement {
 
             if (isPhoto) {
               return html`
-                <div class="photo-category">
+                <div class="photo-thumbnail">
                   <vb-photo-thumbnail
                     src="${url}"
                     href="${href}"
@@ -291,8 +294,10 @@ class PhotosWebComponent extends LitElement {
             }
 
             return html`
-              <div class="photo-thumbnail">
+              <div class="photo-category">
                 <vb-photo-category
+                  photoTitle="${title}"
+                  description="${description}"
                   name="${category}"
                   src="${url}"
                   href="${href}"
@@ -305,7 +310,7 @@ class PhotosWebComponent extends LitElement {
     );
   }
 
-  private setAlbumTitleTitle() {
+  private setAlbumTitle() {
     this.albumTitle = this.category ? this.category : 'Albums';
   }
 }

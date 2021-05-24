@@ -3,7 +3,7 @@ const serverUrl = 'http://localhost:4040/server';
 interface navLabel {
   pageId: string;
   label: string;
-  needsLogin?: true;  
+  needsLogin?: true;
   hasBrightBackground: boolean;
   showInNavigation?: boolean;
 }
@@ -47,7 +47,7 @@ export const Config = {
   },
   url: {
     server: {
-      backgrounds: `/resources/site/backgrounds`,    
+      backgrounds: `/resources/site/backgrounds`,
       icons: '/resources/site/icons',
       journal: {
         entry: `${serverUrl}/journal`,
@@ -55,9 +55,10 @@ export const Config = {
         media: `/resources/journal`,
       },
       photo: {
+        entry: `${serverUrl}/photo`,
         categories: `${serverUrl}/categoryPhotos`,
-        photosForCategory: `${serverUrl}/photos`,
         media: `/resources/photos`,
+        photosForCategory: `${serverUrl}/photos`,
       },
     },
   },

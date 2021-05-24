@@ -22,6 +22,7 @@ export type State = {
     };
     photosAndVideos: {
       photos: {
+        entry: Photo,
         categories: Photo[];
         photosInCategory: Photo[];
       };
@@ -97,8 +98,17 @@ export class App extends LitElement {
       this.broadcastState();
     });
 
+    PubSub.subscribe(Signal.PhotoEntryRequest, async (_: string, id: string) => {
+      const photo = await PhotoHandler.getPhoto(id);
+
+      this.state.pages.photosAndVideos.photos.entry = photo;
+      this.state = { ...this.state };
+      this.broadcastState();
+    });
+
     PubSub.subscribe(Signal.PhotosRequest, async (_: string, category: string) => {
       const categoryPhotos = await PhotoHandler.getPhotos(category);
+      
       this.state.pages.photosAndVideos.photos.categories = categoryPhotos;
       this.state = { ...this.state };
       this.broadcastState();
@@ -145,6 +155,7 @@ export class App extends LitElement {
         },
         photosAndVideos: {
           photos: {
+            entry: null,
             categories: null,
             photosInCategory: null,
           },

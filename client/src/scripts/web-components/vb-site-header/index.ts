@@ -4,6 +4,8 @@ import { Config } from '../../config';
 import { State } from '../vb-app/index';
 import { Signal } from '../vb-app/enums';
 
+const fadeDuration = Config.style.fadeDuration;
+
 export class SiteHeader extends LitElement {
   static get styles() {
     const backgroundUrl = css`${unsafeCSS(Config.url.server.backgrounds)}`;
@@ -13,6 +15,15 @@ export class SiteHeader extends LitElement {
           position: relative;
           z-index: 1;
       }    
+
+      :host .container {
+        transition: opacity ${fadeDuration}ms ease-in;
+        opacity: 0;
+      }
+
+      :host .container.show {
+        opacity: 1;
+      }
 
       :host .logo {
           background-color: var(--content-foreground-color);
@@ -59,18 +70,21 @@ export class SiteHeader extends LitElement {
   }
 
   updated() {
+    window.setTimeout(this.fadeIn.bind(this), Config.timing.siteFadeInLatency / 2);
     this.bindEvents();
   }
 
   render() {
     return html`
-      <section class="logo">
-        <article id="scroll-container" class="scroll-container">
-          <h1 id="logo-text"><span>VANILLA</span><span>BEACH</span></h1>
-          <vb-nav></vb-nav>
-        </article>
-      </section>
-      <section class="splash"></section>    
+      <div class="container" id="container">
+        <section class="logo">
+          <article id="scroll-container" class="scroll-container">
+            <h1 id="logo-text"><span>VANILLA</span><span>BEACH</span></h1>
+            <vb-nav></vb-nav>
+          </article>
+        </section>
+        <section class="splash"></section>    
+      </div>
     `;
   }
 
@@ -79,6 +93,12 @@ export class SiteHeader extends LitElement {
 
   private bindPubSubEvents() {
     PubSub.subscribe(Signal.AppSync, (_: string, state: State) => {});
+  }
+
+  private fadeIn() {
+    const containerEl = this.shadowRoot.querySelector('#container');
+
+    containerEl.classList.add('show');
   }
 
   private unbindEvents() {

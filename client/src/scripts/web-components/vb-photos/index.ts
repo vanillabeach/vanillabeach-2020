@@ -218,12 +218,18 @@ class PhotosWebComponent extends LitElement {
   private fadeIn() {
     window.scrollTo(0, 0);
     const photosEl: HTMLElement = this.shadowRoot.querySelector('#photos');
-    photosEl.classList.add('show');
+
+    if (photosEl) {
+      photosEl.classList.add('show');
+    }
   }
 
   private fadeOut(callback?: Function) {
     const photosEl: HTMLElement = this.shadowRoot.querySelector('#photos');
-    photosEl.classList.remove('show');
+    
+    if (photosEl) {
+      photosEl.classList.remove('show');
+    }
     if (callback) {
       setTimeout(callback.bind(this), fadeDuration);
     }

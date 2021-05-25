@@ -64,24 +64,27 @@ export class VBPhoto extends LitElement {
         background-size: contain;
       }
 
-      :host .photo .icon {
-        width: 64px;
-        height: 64px;
+      :host .photo .main-content .icon {
+        width: 3em;
+        height: 3em;
         background-color: var(--content-background-color);
         border: 0px;
         border-bottom: var(--under-border-thickness) solid
           var(--content-foreground-color-translucent);
+        margin-right: 1em;
+        cursor: pointer;
       }
 
-      :host .photo .icon img {
-        width: 32px;
+      :host .photo .main-content .icon img {
+        width: 1.5em;
       }
 
       :host .photo.show {
         opacity: 1;
       }
 
-      :host .photo > section {
+      :host .photo .main-content{
+        transition: 500ms cubic-bezier(.14,1.12,.42,.98);
         background-color: var(--content-foreground-color-opaque);
         box-sizing: border-box;
         position: absolute;
@@ -94,13 +97,28 @@ export class VBPhoto extends LitElement {
         color: var(--content-background-color);
       }
 
-      :host .photo > section h2 {
+      :host .photo .main-content.hide {
+        height: 6em;
+        overflow: hidden;
+      }
+
+      :host .photo .main-content.hide .minimize > img {
+        transform: rotate(180deg);
+        transform-origin: center center;
+      }
+
+      :host .photo .main-content > header > * {
+        display: inline-block;
+        vertical-align: top;
+      }
+
+      :host .photo .main-content h2 {
         margin-top: 0;
         font-family: var(--header-font-family);
         text-transform: uppercase;
       }
 
-      :host .photo > section .comment {
+      :host .photo .main-content .comment {
         margin-top: 1em;
         font-style: italic;
       }
@@ -129,7 +147,9 @@ export class VBPhoto extends LitElement {
     const title = this.photo ? this.photo.title : '';
     const entry = this.photo ? unsafeHTML(this.photo.entry) : '';
     const comment = this.photo
-      ? html`<div class="comment">${unsafeHTML(this.photo.comment.trim())}</div>`
+      ? html`<div class="comment">
+          ${unsafeHTML(this.photo.comment.trim())}
+        </div>`
       : html``;
 
     photo.src = url;
@@ -147,11 +167,16 @@ export class VBPhoto extends LitElement {
 
     return html` <div class="full-screen-photo">
       <div id="photo" class="photo" style="background-image: url(${url})">
-        <button class="icon" id="exit">
-          <img src="${iconsUrl}/close.svg" title="Close" />
-        </button>
-        <section>
-          <h2>${title}</h2>
+        <section class="main-content" id="main-content">
+          <header>
+            <button class="icon" id="exit">
+              <img src="${iconsUrl}/close.svg" title="Close" />
+            </button>
+            <button class="icon minimize" id="minimize">
+              <img src="${iconsUrl}/minimize.svg" title="Close" />
+            </button>
+            <h2>${title}</h2>
+          </header>
           ${entry} ${comment}
         </section>
       </div>
@@ -160,12 +185,19 @@ export class VBPhoto extends LitElement {
 
   private bindEvents() {
     this.bindExitEvent();
+    this.bindMinimizeToggleEvent();
   }
 
   private bindExitEvent() {
     this.shadowRoot
       .querySelector('#exit')
       .addEventListener('click', this.exitEvent.bind(this));
+  }
+
+  private bindMinimizeToggleEvent() {
+    this.shadowRoot
+      .querySelector('#minimize')
+      .addEventListener('click', this.minimizeToggleEvent.bind(this));
   }
 
   private bindPubSubEvents() {
@@ -190,14 +222,25 @@ export class VBPhoto extends LitElement {
     return encodeURI(path);
   }
 
+  private minimizeToggleEvent() {
+    this.shadowRoot.querySelector('#main-content').classList.toggle('hide');
+  }
+
   private unbindEvents() {
     this.unbindExitEvent();
+    this.unbindMinimizeToggleEvent();
   }
 
   private unbindExitEvent() {
     this.shadowRoot
       .querySelector('#exit')
       .removeEventListener('click', this.exitEvent.bind(this));
+  }
+
+  private unbindMinimizeToggleEvent() {
+    this.shadowRoot
+      .querySelector('#minimize')
+      .removeEventListener('click', this.minimizeToggleEvent.bind(this));
   }
 
   private exitEvent() {

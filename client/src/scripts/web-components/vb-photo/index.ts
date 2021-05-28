@@ -12,6 +12,7 @@ export class VBPhoto extends LitElement {
   private exitUrl: string;
   private photo: Photo;
   private photoId: string;
+  private isFirstRender = true;
 
   constructor() {
     super();
@@ -136,7 +137,10 @@ export class VBPhoto extends LitElement {
   }
 
   updated() {
-    this.bindEvents();
+    if (this.isFirstRender === true) {
+      this.bindEvents();
+      this.isFirstRender = false;
+    }
   }
 
   render() {
